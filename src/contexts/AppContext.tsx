@@ -1,6 +1,7 @@
 import React, { createContext, useReducer, useEffect, useCallback } from 'react'
 import { appReducer, initialState } from './appReducer'
-import type { AppState, AppAction, UserProfile, Theory, Decision, DecisionResult, DecisionDraft, ToastMessage, AIProvider } from '../types'
+import type { AppAction } from './appReducer'
+import type { AppState, UserProfile, Theory, Decision, DecisionResult, DecisionDraft, ToastMessage, AIProvider } from '../types'
 import * as storage from '../services/storage'
 import { STORAGE_KEYS } from '../constants/storage'
 import { STORAGE_VERSION } from '../constants/config'

@@ -1,8 +1,9 @@
+import type { ReactNode } from 'react'
 import { cn } from '../../utils/cn'
 
 interface PageHeaderProps {
   title: string
-  subtitle?: string
+  subtitle?: ReactNode
   icon?: string
   className?: string
 }
