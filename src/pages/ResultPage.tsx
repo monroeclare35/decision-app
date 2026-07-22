@@ -77,6 +77,24 @@ export function ResultPage() {
         <ActionItems items={result.actionItems} />
       )}
 
+      {/* Matched Knowledge */}
+      {result.matchedKnowledge && result.matchedKnowledge.length > 0 && (
+        <div className="card-shadow rounded-xl bg-white p-5">
+          <h3 className="mb-3 text-sm font-semibold text-sage-600">📖 你的知识库中有相关收藏</h3>
+          <div className="space-y-3">
+            {result.matchedKnowledge.map((mk, i) => (
+              <div key={i} className="rounded-lg border border-warm-100 bg-warm-50/30 p-3">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="text-[10px] font-medium text-warm-500">{mk.type === 'quote' ? '💬 金句' : '📄 文章'}</span>
+                </div>
+                <p className="text-sm text-sage-700">{mk.content}</p>
+                <p className="mt-1 text-xs text-sage-500">{mk.relevance}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Counterpoint */}
       {result.counterpoint && (
         <CounterpointSection text={result.counterpoint} />

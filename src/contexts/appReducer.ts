@@ -1,4 +1,4 @@
-import type { AppState, Theory, Decision, DecisionResult, DecisionDraft, UserProfile, ToastMessage } from '../types'
+import type { AppState, Theory, Decision, DecisionResult, DecisionDraft, UserProfile, ToastMessage, KnowledgeItem } from '../types'
 
 export type AppAction =
   // User
@@ -21,6 +21,10 @@ export type AppAction =
   // Settings
   | { type: 'SET_API_KEY'; payload: string }
   | { type: 'SET_PROVIDER'; payload: 'claude' | 'deepseek' }
+  // Knowledge
+  | { type: 'ADD_KNOWLEDGE'; payload: KnowledgeItem }
+  | { type: 'REMOVE_KNOWLEDGE'; payload: string }
+  | { type: 'LOAD_KNOWLEDGE'; payload: KnowledgeItem[] }
   // UI
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
@@ -41,6 +45,7 @@ export const initialState: AppState = {
     currentDraft: null,
     currentResult: null,
   },
+  knowledge: [],
   settings: {
     provider: 'deepseek' as const,
     apiKey: '',
@@ -188,6 +193,25 @@ export function appReducer(state: AppState, action: AppAction): AppState {
           ...state.decisions,
           history: state.decisions.history.filter((d) => d.id !== action.payload),
         },
+      }
+
+    // --- Knowledge ---
+    case 'ADD_KNOWLEDGE':
+      return {
+        ...state,
+        knowledge: [action.payload, ...state.knowledge],
+      }
+
+    case 'REMOVE_KNOWLEDGE':
+      return {
+        ...state,
+        knowledge: state.knowledge.filter((k) => k.id !== action.payload),
+      }
+
+    case 'LOAD_KNOWLEDGE':
+      return {
+        ...state,
+        knowledge: action.payload,
       }
 
     // --- Settings ---

@@ -73,11 +73,25 @@ export interface Theory {
   createdAt?: string
 }
 
+// ============ Knowledge ============
+
+export type KnowledgeType = 'belief' | 'quote' | 'article'
+
+export interface KnowledgeItem {
+  id: string
+  type: KnowledgeType
+  content: string       // the core text (article = AI summary)
+  rawContent?: string   // original full text for articles
+  source?: string       // link or description
+  tags: string[]
+  createdAt: string
+}
+
 // ============ User ============
 
 export interface UserProfile {
   ratings: Record<string, number> // theoryId -> 0-5
-  beliefs: string[]
+  beliefs: string[]               // deprecated — migrated to knowledge items
   completedOnboarding: boolean
   createdAt: string
 }
@@ -103,8 +117,16 @@ export interface BeliefReflection {
   influence: string
 }
 
+export interface MatchedKnowledge {
+  itemId: string
+  content: string
+  type: KnowledgeType
+  relevance: string
+}
+
 export interface DecisionResult {
   matchedTheories: MatchedTheory[]
+  matchedKnowledge?: MatchedKnowledge[]
   personalizedAnalysis: string
   counterpoint: string
   actionItems: string[]
@@ -137,6 +159,7 @@ export interface AppState {
   user: {
     profile: UserProfile | null
   }
+  knowledge: KnowledgeItem[]
   theories: {
     library: Theory[]
     userRatings: Record<string, number>

@@ -5,7 +5,7 @@ import { LandingPage } from './pages/LandingPage'
 import { OnboardingPage } from './pages/OnboardingPage'
 import { DecidePage } from './pages/DecidePage'
 import { ResultPage } from './pages/ResultPage'
-import { BeliefsPage } from './pages/BeliefsPage'
+import { KnowledgePage } from './pages/KnowledgePage'
 import { TheoriesPage } from './pages/TheoriesPage'
 import { HistoryPage } from './pages/HistoryPage'
 import { SettingsPage } from './pages/SettingsPage'
@@ -21,7 +21,8 @@ export function App() {
             <Route path="/onboarding" element={<OnboardingPage />} />
             <Route path="/decide" element={<DecidePage />} />
             <Route path="/result/:id" element={<ResultPage />} />
-            <Route path="/beliefs" element={<BeliefsPage />} />
+            <Route path="/knowledge" element={<KnowledgePage />} />
+            <Route path="/beliefs" element={<KnowledgePage />} />
             <Route path="/theories" element={<TheoriesPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/settings" element={<SettingsPage />} />

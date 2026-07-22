@@ -49,13 +49,29 @@ export function useDecisionSubmit() {
         contradictionTheories
       )
 
+      // Build knowledge section for prompt
+      const knowledgeItems = state.knowledge
+      const beliefItems = knowledgeItems.filter((k) => k.type === 'belief')
+      const otherItems = knowledgeItems.filter((k) => k.type !== 'belief')
+      const beliefsFromKnowledge = beliefItems.map((k) => k.content)
+
+      let knowledgeSection = ''
+      if (otherItems.length > 0) {
+        knowledgeSection = '\n## 用户知识库收藏\n' +
+          otherItems.map((k) =>
+            `- [${k.type === 'quote' ? '金句' : '文章'}] ${k.content.slice(0, 150)}${k.tags.length ? ' | 标签: ' + k.tags.join(', ') : ''}`
+          ).join('\n')
+      }
+
       // Build prompts
-      const systemPrompt = buildSystemPrompt(beliefs)
+      const allBeliefs = [...beliefs, ...beliefsFromKnowledge]
+      const systemPrompt = buildSystemPrompt(allBeliefs)
       const userPrompt = buildAdvicePrompt({
         decisionText: description,
         category,
         theoriesSection,
-        beliefs,
+        beliefs: allBeliefs,
+        knowledgeSection: otherItems.length > 0 ? knowledgeSection : undefined,
       })
 
       // Call AI

@@ -1,7 +1,7 @@
 import React, { createContext, useReducer, useEffect, useCallback } from 'react'
 import { appReducer, initialState } from './appReducer'
 import type { AppAction } from './appReducer'
-import type { AppState, UserProfile, Theory, Decision, DecisionResult, DecisionDraft, ToastMessage, AIProvider } from '../types'
+import type { AppState, UserProfile, Theory, Decision, DecisionResult, DecisionDraft, ToastMessage, AIProvider, KnowledgeItem } from '../types'
 import * as storage from '../services/storage'
 import { STORAGE_KEYS } from '../constants/storage'
 import { STORAGE_VERSION } from '../constants/config'
@@ -16,6 +16,8 @@ interface AppContextValue {
   removeBelief: (index: number) => void
   updateBelief: (index: number, text: string) => void
   saveDecision: (description: string, result: DecisionResult, category: DecisionDraft['category']) => string
+  addKnowledge: (item: KnowledgeItem) => void
+  removeKnowledge: (id: string) => void
   setApiKey: (key: string) => void
   setProvider: (provider: AIProvider) => void
   showToast: (text: string, type?: ToastMessage['type']) => void
@@ -65,6 +67,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     // Load provider
     const provider = storage.get<AIProvider>('decision_app_provider', 'deepseek')
     dispatch({ type: 'SET_PROVIDER', payload: provider })
+
+    // Load knowledge
+    const knowledge = storage.get<KnowledgeItem[]>('decision_app_knowledge', [])
+    dispatch({ type: 'LOAD_KNOWLEDGE', payload: knowledge })
   }, [])
 
   // --- Persist on change ---
@@ -93,6 +99,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     storage.set(STORAGE_KEYS.API_KEY, state.settings.apiKey)
   }, [state.settings.apiKey])
+
+  useEffect(() => {
+    storage.set('decision_app_knowledge', state.knowledge)
+  }, [state.knowledge])
 
   useEffect(() => {
     storage.set('decision_app_provider', state.settings.provider)
@@ -135,6 +145,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     []
   )
 
+  const addKnowledge = useCallback((item: KnowledgeItem) => {
+    dispatch({ type: 'ADD_KNOWLEDGE', payload: item })
+  }, [])
+
+  const removeKnowledge = useCallback((id: string) => {
+    dispatch({ type: 'REMOVE_KNOWLEDGE', payload: id })
+  }, [])
+
   const setApiKey = useCallback((key: string) => {
     dispatch({ type: 'SET_API_KEY', payload: key })
   }, [])
@@ -160,6 +178,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     addBelief,
     removeBelief,
     updateBelief,
+    addKnowledge,
+    removeKnowledge,
     saveDecision,
     setApiKey,
     setProvider,

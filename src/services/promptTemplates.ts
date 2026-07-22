@@ -48,6 +48,14 @@ export function buildSystemPrompt(beliefs: string[]): string {
       "belief": "用户的核心信念原文",
       "influence": "这个信念如何影响了本次决策分析"
     }
+  ],
+  "matchedKnowledge": [
+    {
+      "itemId": "收藏条目ID或标题",
+      "content": "收藏内容摘要",
+      "type": "quote或article",
+      "relevance": "为什么这个收藏与当前决策相关"
+    }
   ]
 }
 \`\`\`
@@ -60,6 +68,7 @@ export function buildAdvicePrompt(params: {
   category: Category
   theoriesSection: string
   beliefs: string[]
+  knowledgeSection?: string
 }): string {
   const categoryLabel = CATEGORY_LABELS[params.category]
 
@@ -71,6 +80,8 @@ ${params.theoriesSection}
 
 ${params.beliefs.length > 0 ? `## 用户核心信念\n${params.beliefs.map((b) => `- ${b}`).join('\n')}` : '## 用户核心信念\n（用户暂未设置核心信念）'}
 
+${params.knowledgeSection || ''}
+
 ## 任务
-请仔细分析这个决策困境，综合考虑用户的理论偏好和核心信念，给出个性化的决策建议。请严格按照 JSON 格式返回。`
+请仔细分析这个决策困境，综合考虑用户的理论偏好、核心信念${params.knowledgeSection ? '和知识库收藏' : ''}，给出个性化的决策建议。${params.knowledgeSection ? '如果用户的知识库收藏中有与当前困境相关的，在matchedKnowledge中引用它们。' : ''}请严格按照 JSON 格式返回。`
 }

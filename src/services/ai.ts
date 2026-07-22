@@ -82,6 +82,47 @@ export async function generateDecisionAdvice(params: AIParams): Promise<Decision
   return parseResponse(text)
 }
 
+// ============ Article Summarization ============
+
+export async function summarizeArticle(params: {
+  config: { provider: string; apiKey: string }
+  rawText: string
+}): Promise<{ summary: string; tags: string[]; title: string }> {
+  const prompt = `请阅读以下用户收藏的文章，然后做三件事：
+1. 用2-3句话提炼核心要点（中文，保留精华，去掉废话）
+2. 给出标题（简短）
+3. 打3-5个标签（便于未来检索匹配）
+
+文章内容：
+${params.rawText.slice(0, 8000)}
+
+直接返回JSON，不要markdown：
+{"title": "标题", "summary": "2-3句核心要点", "tags": ["标签1", "标签2", "标签3"]}`
+
+  let text: string
+  if (params.config.provider === 'deepseek') {
+    const r = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${params.config.apiKey}` },
+      body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'user', content: prompt }], max_tokens: 500, temperature: 0.5 }),
+    })
+    const d = await r.json()
+    text = d.choices?.[0]?.message?.content || ''
+  } else {
+    const Anthropic = (await import('@anthropic-ai/sdk')).default
+    const a = new Anthropic({ apiKey: params.config.apiKey, dangerouslyAllowBrowser: true })
+    const r = await a.messages.create({ model: 'claude-sonnet-4-20250514', max_tokens: 500, temperature: 0.5, messages: [{ role: 'user', content: prompt }] })
+    text = (r.content[0] as { type: 'text'; text: string }).text
+  }
+
+  const m = text.match(/```(?:json)?\s*([\s\S]*?)```/)
+  const j = m ? m[1] : text
+  try {
+    const p = JSON.parse(j.trim())
+    return { summary: p.summary || '摘要生成失败', tags: p.tags || [], title: p.title || '未命名' }
+  } catch { return { summary: text.slice(0, 500), tags: [], title: '未命名' } }
+}
+
 // ============ Theory Auto-Complete ============
 
 interface TheoryCompletion {
@@ -180,6 +221,7 @@ function parseResponse(text: string): DecisionResult {
     const parsed = JSON.parse(jsonStr.trim())
     return {
       matchedTheories: parsed.matchedTheories || [],
+      matchedKnowledge: parsed.matchedKnowledge || [],
       personalizedAnalysis: parsed.personalizedAnalysis || '无法生成分析，请重试。',
       counterpoint: parsed.counterpoint || '',
       actionItems: parsed.actionItems || [],
@@ -189,6 +231,7 @@ function parseResponse(text: string): DecisionResult {
   } catch {
     return {
       matchedTheories: [],
+      matchedKnowledge: [],
       personalizedAnalysis: text,
       counterpoint: '',
       actionItems: [],

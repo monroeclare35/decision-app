@@ -4,7 +4,7 @@ import { cn } from '../../utils/cn'
 const NAV_ITEMS = [
   { to: '/decide', label: '决策', icon: '🎯' },
   { to: '/theories', label: '理论', icon: '📚' },
-  { to: '/beliefs', label: '信念', icon: '🧭' },
+  { to: '/knowledge', label: '知识库', icon: '📖' },
   { to: '/history', label: '历史', icon: '📋' },
   { to: '/settings', label: '设置', icon: '⚙️' },
 ]
