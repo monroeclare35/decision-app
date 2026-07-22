@@ -67,9 +67,12 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         user: {
           ...state.user,
-          profile: state.user.profile
-            ? { ...state.user.profile, completedOnboarding: true }
-            : null,
+          profile: {
+            ratings: state.user.profile?.ratings || {},
+            beliefs: state.user.profile?.beliefs || [],
+            completedOnboarding: true,
+            createdAt: state.user.profile?.createdAt || new Date().toISOString(),
+          },
         },
       }
 
