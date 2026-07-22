@@ -1,24 +1,49 @@
 // ============ Domain & Category ============
 
 export type Domain =
-  | 'finance'
-  | 'psychology'
-  | 'folk'
-  | 'decision_science'
-  | 'sociology'
-  | 'behavioral'
-  | 'meme'
+  | 'relationships'   // 人际关系
+  | 'career'           // 职场事业
+  | 'family'           // 亲密家庭
+  | 'growth'           // 成长校园
+  | 'finance'          // 财富消费
+  | 'productivity'     // 效率习惯
+  | 'cognition'        // 心智认知
+  | 'decision'         // 决策工具
+  | 'health'           // 健康身心
+  | 'philosophy'       // 生活哲学
+  | 'wisdom'           // 处世智慧
+  | 'trends'           // 网络思潮
 
 export type Category = 'emotional' | 'financial' | 'meal' | 'outfit' | 'general'
 
 export const DOMAIN_LABELS: Record<Domain, string> = {
-  finance: '理财',
-  psychology: '心理学',
-  folk: '民间智慧',
-  decision_science: '决策学',
-  sociology: '社会学',
-  behavioral: '行为学',
-  meme: '网络智慧',
+  relationships: '人际关系',
+  career: '职场事业',
+  family: '亲密家庭',
+  growth: '成长校园',
+  finance: '财富消费',
+  productivity: '效率习惯',
+  cognition: '心智认知',
+  decision: '决策工具',
+  health: '健康身心',
+  philosophy: '生活哲学',
+  wisdom: '处世智慧',
+  trends: '网络思潮',
+}
+
+export const DOMAIN_ICONS: Record<Domain, string> = {
+  relationships: '👥',
+  career: '💼',
+  family: '💕',
+  growth: '🌱',
+  finance: '💰',
+  productivity: '⚡',
+  cognition: '🧠',
+  decision: '🔧',
+  health: '💪',
+  philosophy: '🏛️',
+  wisdom: '🏮',
+  trends: '🌐',
 }
 
 export const CATEGORY_LABELS: Record<Category, string> = {

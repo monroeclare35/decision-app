@@ -193,7 +193,7 @@ export function OnboardingPage() {
           下一题 →
         </button>
 
-        {ratedCount >= 10 && !isComplete && (
+        {ratedCount >= 5 && !isComplete && (
           <button
             onClick={() => {
               if (window.confirm(`你已评价了 ${ratedCount} 条理论（共 ${ONBOARDING_TOTAL} 条），未评的将记为中立。确定提交吗？`)) {

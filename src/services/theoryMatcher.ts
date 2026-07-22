@@ -71,13 +71,18 @@ function computeScore(
 function getCategoryBoost(domain: string, category: Category): number {
   // Map domains to their most relevant categories
   const domainCategoryMap: Record<string, Category[]> = {
+    relationships: ['emotional', 'general'],
+    career: ['financial', 'general'],
+    family: ['emotional', 'general'],
+    growth: ['general'],
     finance: ['financial', 'general'],
-    psychology: ['emotional', 'general'],
-    folk: ['emotional', 'general', 'financial'],
-    decision_science: ['financial', 'general'],
-    sociology: ['emotional', 'general'],
-    behavioral: ['emotional', 'financial', 'meal', 'outfit', 'general'],
-    meme: ['general', 'outfit', 'meal', 'emotional'],
+    productivity: ['general'],
+    cognition: ['emotional', 'general'],
+    decision: ['financial', 'general'],
+    health: ['meal', 'general'],
+    philosophy: ['emotional', 'general'],
+    wisdom: ['emotional', 'general', 'financial'],
+    trends: ['general', 'outfit', 'meal', 'emotional'],
   }
 
   const relevantCategories = domainCategoryMap[domain] || ['general']

@@ -5,7 +5,7 @@ import type { AppState, UserProfile, Theory, Decision, DecisionResult, DecisionD
 import * as storage from '../services/storage'
 import { STORAGE_KEYS } from '../constants/storage'
 import { STORAGE_VERSION } from '../constants/config'
-import { PRESET_THEORIES, shuffleTheories } from '../data/theories'
+import { PRESET_THEORIES, ONBOARDING_THEORIES, shuffleTheories } from '../data/theories'
 
 interface AppContextValue {
   state: AppState
@@ -35,8 +35,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       storage.set(STORAGE_KEYS.VERSION, STORAGE_VERSION)
     }
 
-    // Load theories — shuffle for unbiased onboarding
-    dispatch({ type: 'LOAD_THEORIES', payload: shuffleTheories(PRESET_THEORIES) })
+    // Load all 252 theories into the library (for decision matching)
+    dispatch({ type: 'LOAD_THEORIES', payload: PRESET_THEORIES })
 
     // Load user ratings
     const ratings = storage.get<Record<string, number>>(STORAGE_KEYS.USER_RATINGS, {})

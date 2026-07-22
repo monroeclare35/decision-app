@@ -1,17 +1,19 @@
 import { useCallback } from 'react'
 import { useAppContext } from './useAppContext'
 import { ONBOARDING_TOTAL } from '../constants/config'
+import { ONBOARDING_THEORIES } from '../data/theories'
 
 export function useOnboarding() {
   const { state, dispatch, rateTheory } = useAppContext()
-  const { library: theories } = state.theories
   const { onboardingIndex } = state.ui
   const { userRatings } = state.theories
 
+  // Use the 10 onboarding theories, shuffled
+  const theories = ONBOARDING_THEORIES
   const currentTheory = theories[onboardingIndex] || null
   const progress = theories.length > 0 ? onboardingIndex / theories.length : 0
   const ratedCount = Object.keys(userRatings).length
-  const isComplete = onboardingIndex >= ONBOARDING_TOTAL
+  const isComplete = onboardingIndex >= ONBOARDING_THEORIES.length
 
   const goToIndex = useCallback(
     (index: number) => {

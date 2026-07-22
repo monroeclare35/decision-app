@@ -6,7 +6,7 @@ export const MAX_DECISION_LENGTH = 500
 export const MAX_BELIEF_LENGTH = 200
 export const MAX_BELIEFS = 10
 
-export const ONBOARDING_TOTAL = 80
+export const ONBOARDING_TOTAL = 10
 export const ONBOARDING_BATCH_SIZE = 5 // how many shown in a "batch" concept
 
 export const TOP_THEORIES_COUNT = 5

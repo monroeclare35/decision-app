@@ -16,7 +16,7 @@ export function AddCustomTheoryForm({ onAdd }: AddCustomTheoryFormProps) {
   const [expanded, setExpanded] = useState(false)
   const [concept, setConcept] = useState('')
   const [content, setContent] = useState('')
-  const [domain, setDomain] = useState<Domain>('folk')
+  const [domain, setDomain] = useState<Domain>('wisdom')
   const [tags, setTags] = useState('')
   const [isAutocompleting, setIsAutocompleting] = useState(false)
   const [hasAutocompleted, setHasAutocompleted] = useState(false)

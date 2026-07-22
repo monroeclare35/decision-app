@@ -26,7 +26,7 @@ export function buildSystemPrompt(beliefs: string[]): string {
 {
   "matchedTheories": [
     {
-      "theoryId": "finance_01",
+      "theoryId": "理论的简短名称",
       "content": "理论原文",
       "userRating": 5,
       "relevance": "为什么这个理论适用于当前决策（1-2句话）",
@@ -40,7 +40,7 @@ export function buildSystemPrompt(beliefs: string[]): string {
     {
       "scenario": "一个与当前困境结构相似的假设场景",
       "outcome": "不同决策路径可能导致的结果",
-      "appliedTheories": ["理论id1", "理论id2"]
+      "appliedTheories": ["分散投资", "损失厌恶"]
     }
   ],
   "beliefReflections": [
