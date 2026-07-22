@@ -102,7 +102,7 @@ function KnowledgeCard({ item, onDelete }: { item: KnowledgeItem; onDelete: () =
 }
 
 // --- Belief ---
-function AddBeliefForm({ onAdd, showToast }: { onAdd: (item: KnowledgeItem) => void; showToast: (t: string, type?: string) => void }) {
+function AddBeliefForm({ onAdd, showToast }: { onAdd: (item: KnowledgeItem) => void; showToast: ReturnType<typeof useAppContext>['showToast'] }) {
   const [text, setText] = useState('')
 
   const handle = () => {
@@ -122,7 +122,7 @@ function AddBeliefForm({ onAdd, showToast }: { onAdd: (item: KnowledgeItem) => v
 }
 
 // --- Quote ---
-function AddQuoteForm({ onAdd, showToast }: { onAdd: (item: KnowledgeItem) => void; showToast: (t: string, type?: string) => void }) {
+function AddQuoteForm({ onAdd, showToast }: { onAdd: (item: KnowledgeItem) => void; showToast: ReturnType<typeof useAppContext>['showToast'] }) {
   const [text, setText] = useState('')
   const [source, setSource] = useState('')
   const [tags, setTags] = useState('')
@@ -152,7 +152,7 @@ function AddQuoteForm({ onAdd, showToast }: { onAdd: (item: KnowledgeItem) => vo
 }
 
 // --- Article ---
-function AddArticleForm({ onAdd, showToast, state }: { onAdd: (item: KnowledgeItem) => void; showToast: (t: string, type?: string) => void; state: ReturnType<typeof useAppContext>['state'] }) {
+function AddArticleForm({ onAdd, showToast, state }: { onAdd: (item: KnowledgeItem) => void; showToast: ReturnType<typeof useAppContext>['showToast']; state: ReturnType<typeof useAppContext>['state'] }) {
   const [text, setText] = useState('')
   const [source, setSource] = useState('')
   const [summarizing, setSummarizing] = useState(false)
