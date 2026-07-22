@@ -8,7 +8,7 @@ import { BeliefReflection } from '../components/result/BeliefReflection'
 import { ActionItems } from '../components/result/ActionItems'
 import { SimilarCases } from '../components/result/SimilarCases'
 import { EmptyState } from '../components/shared/EmptyState'
-import { CATEGORY_LABELS, CATEGORY_ICONS } from '../types'
+import { getCategoryLabel, getCategoryIcon } from '../types'
 
 export function ResultPage() {
   const { id } = useParams<{ id: string }>()
@@ -37,9 +37,9 @@ export function ResultPage() {
         title="分析结果"
         subtitle={
           <span className="inline-flex items-center gap-1.5">
-            {CATEGORY_ICONS[decision.category]}
-            {CATEGORY_LABELS[decision.category]}
-            <span className="text-sage-300">·</span>
+            {getCategoryIcon(decision.category)}
+            {getCategoryLabel(decision.category)}
+            <span className="text-surface-300">·</span>
             <span>{new Date(decision.createdAt).toLocaleDateString('zh-CN')}</span>
           </span>
         }
@@ -47,15 +47,15 @@ export function ResultPage() {
       />
 
       {/* Decision text */}
-      <div className="card-shadow rounded-xl bg-white p-4">
-        <p className="text-sm text-sage-500">你的困境：</p>
-        <p className="mt-1 text-sage-800">{decision.description}</p>
+      <div className="card rounded-xl bg-white p-4">
+        <p className="text-sm text-surface-500">你的困境：</p>
+        <p className="mt-1 text-surface-800">{decision.description}</p>
       </div>
 
       {/* Matched theories */}
       {result.matchedTheories.length > 0 && (
         <div>
-          <h3 className="mb-3 text-sm font-semibold text-sage-600">关联的理论</h3>
+          <h3 className="mb-3 text-sm font-semibold text-surface-600">关联的理论</h3>
           <div className="space-y-3">
             {result.matchedTheories.map((mt, i) => (
               <MatchedTheoryCard key={i} matched={mt} />
@@ -79,16 +79,16 @@ export function ResultPage() {
 
       {/* Matched Knowledge */}
       {result.matchedKnowledge && result.matchedKnowledge.length > 0 && (
-        <div className="card-shadow rounded-xl bg-white p-5">
-          <h3 className="mb-3 text-sm font-semibold text-sage-600">📖 你的知识库中有相关收藏</h3>
+        <div className="card rounded-xl bg-white p-5">
+          <h3 className="mb-3 text-sm font-semibold text-surface-600">📖 你的知识库中有相关收藏</h3>
           <div className="space-y-3">
             {result.matchedKnowledge.map((mk, i) => (
-              <div key={i} className="rounded-lg border border-warm-100 bg-warm-50/30 p-3">
+              <div key={i} className="rounded-lg border border-primary-100 bg-primary-50/30 p-3">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <span className="text-[10px] font-medium text-warm-500">{mk.type === 'quote' ? '💬 金句' : '📄 文章'}</span>
+                  <span className="text-[10px] font-medium text-primary-500">{mk.type === 'quote' ? '💬 金句' : '📄 文章'}</span>
                 </div>
-                <p className="text-sm text-sage-700">{mk.content}</p>
-                <p className="mt-1 text-xs text-sage-500">{mk.relevance}</p>
+                <p className="text-sm text-surface-700">{mk.content}</p>
+                <p className="mt-1 text-xs text-surface-500">{mk.relevance}</p>
               </div>
             ))}
           </div>
@@ -110,13 +110,13 @@ export function ResultPage() {
         <Link
           to="/decide"
           state={{ fromResult: true }}
-          className="flex-1 rounded-xl bg-sage-800 py-3 text-center text-sm font-medium text-white transition-all hover:bg-sage-700 active:scale-[0.98]"
+          className="flex-1 rounded-xl bg-surface-800 py-3 text-center text-sm font-medium text-white transition-all hover:bg-surface-700 active:scale-[0.98]"
         >
           再做新决策
         </Link>
         <Link
           to="/history"
-          className="rounded-xl border border-sage-200 bg-white px-6 py-3 text-sm font-medium text-sage-600 transition-all hover:bg-sage-50 active:scale-[0.98]"
+          className="rounded-xl border border-surface-200 bg-white px-6 py-3 text-sm font-medium text-surface-600 transition-all hover:bg-surface-50 active:scale-[0.98]"
         >
           查看历史
         </Link>

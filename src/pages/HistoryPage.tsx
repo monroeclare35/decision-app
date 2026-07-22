@@ -4,7 +4,7 @@ import { useAppContext } from '../hooks/useAppContext'
 import { PageHeader } from '../components/layout/PageHeader'
 import { ConfirmDialog } from '../components/shared/ConfirmDialog'
 import { EmptyState } from '../components/shared/EmptyState'
-import { CATEGORY_ICONS, CATEGORY_LABELS } from '../types'
+import { getCategoryIcon, getCategoryLabel } from '../types'
 
 export function HistoryPage() {
   const { state, dispatch, showToast } = useAppContext()
@@ -48,28 +48,28 @@ export function HistoryPage() {
 
       <div className="space-y-3">
         {history.map((decision) => (
-          <div key={decision.id} className="card-shadow rounded-xl bg-white p-4">
+          <div key={decision.id} className="card rounded-xl bg-white p-4">
             <div className="flex items-start justify-between gap-3">
               <Link
                 to={`/result/${decision.id}`}
                 className="flex-1 min-w-0"
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-sage-50 px-2 py-0.5 text-[10px] font-medium text-sage-500">
-                    {CATEGORY_ICONS[decision.category]}
-                    {CATEGORY_LABELS[decision.category]}
+                  <span className="inline-flex items-center gap-1 rounded-full bg-surface-50 px-2 py-0.5 text-[10px] font-medium text-surface-500">
+                    {getCategoryIcon(decision.category)}
+                    {getCategoryLabel(decision.category)}
                   </span>
-                  <span className="text-[10px] text-sage-400">
+                  <span className="text-[10px] text-surface-400">
                     {new Date(decision.createdAt).toLocaleDateString('zh-CN')}
                   </span>
                 </div>
-                <p className="text-sm text-sage-700 line-clamp-2">
+                <p className="text-sm text-surface-700 line-clamp-2">
                   {decision.description}
                 </p>
               </Link>
               <button
                 onClick={() => setDeleteId(decision.id)}
-                className="flex-shrink-0 rounded-lg p-1.5 text-sage-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                className="flex-shrink-0 rounded-lg p-1.5 text-surface-400 transition-colors hover:bg-red-50 hover:text-red-500"
                 title="删除"
               >
                 🗑️

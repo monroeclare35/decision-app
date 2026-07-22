@@ -20,8 +20,8 @@ export function CategoryBadge({ category, selected, onClick, size = 'md' }: Cate
         'inline-flex items-center gap-1.5 rounded-full border transition-all',
         size === 'sm' ? 'px-2.5 py-1 text-xs' : 'px-3 py-1.5 text-sm',
         selected
-          ? 'border-warm-400 bg-warm-50 text-warm-700'
-          : 'border-sage-200 bg-white text-sage-600 hover:border-sage-300',
+          ? 'border-primary-400 bg-primary-50 text-primary-700'
+          : 'border-surface-200 bg-white text-surface-600 hover:border-surface-300',
         onClick && 'cursor-pointer active:scale-95'
       )}
     >

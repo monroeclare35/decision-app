@@ -48,14 +48,14 @@ export function RatingStars({ value, onChange, readonly = false, size = 'lg' }: 
             <span
               className={cn(
                 'transition-colors duration-200',
-                isFilled ? 'text-warm-400' : 'text-sage-200',
-                !readonly && 'hover:text-warm-300'
+                isFilled ? 'text-primary-400' : 'text-surface-200',
+                !readonly && 'hover:text-primary-300'
               )}
             >
               {score === 0 ? '○' : '●'}
             </span>
             {size === 'lg' && (
-              <span className="mt-1 text-[10px] text-sage-400">{score}</span>
+              <span className="mt-1 text-[10px] text-surface-400">{score}</span>
             )}
           </button>
         )

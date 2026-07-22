@@ -10,11 +10,11 @@ import type { Category } from '../types'
 import { MAX_DECISION_LENGTH } from '../constants/config'
 
 const PLACEHOLDERS: Record<Category, string> = {
-  general: '随便写，比如："要不要搬去另一个城市？拿不定主意"',
-  financial: '比如："手头有2万闲钱，是出去旅游还是存起来？"',
-  emotional: '比如："朋友老借钱不还，这次又开口了，不知道该怎么拒绝"',
-  meal: '比如："今天特别想吃火锅，但最近在控体重，好纠结"',
-  outfit: '比如："看中一件大衣小两千，挺好看的但怕买回去穿不了几次"',
+  love: '比如："异地半年了有点累，不知道该怎么开口谈"',
+  money: '比如："手头有2万闲钱，出去玩还是存起来，拿不定主意"',
+  study_work: '比如："大三了特别焦虑绩点，不知道考研还是直接工作"',
+  social: '比如："室友天天打游戏到凌晨，想说说又怕关系搞僵"',
+  daily: '比如："最近什么都不想干，状态很差，该怎么调整"',
 }
 
 export function DecidePage() {
@@ -23,7 +23,7 @@ export function DecidePage() {
   const { state, showToast } = useAppContext()
   const { submit, isSubmitting, error } = useDecisionSubmit()
   const [description, setDescription] = useState('')
-  const [category, setCategory] = useState<Category>('general')
+  const [category, setCategory] = useState<Category>('daily')
 
   useEffect(() => {
     if ((location.state as { fromResult?: boolean })?.fromResult) {
@@ -54,7 +54,7 @@ export function DecidePage() {
       />
 
       {!profile?.completedOnboarding && (
-        <div className="mb-4 rounded-xl border border-warm-200 bg-warm-50 p-4 text-sm text-warm-700">
+        <div className="mb-4 rounded-xl border border-primary-200 bg-primary-50 p-4 text-sm text-primary-700">
           💡 还没做过偏好测评，先花两分钟做 10 道题{' '}
           <button onClick={() => navigate('/onboarding')} className="font-medium underline">测一下</button>
           ，分析会更贴合你。
@@ -72,30 +72,30 @@ export function DecidePage() {
       <div className="space-y-5">
         {/* Category */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-sage-600">什么事？</label>
+          <label className="mb-2 block text-sm font-medium text-surface-600">什么事？</label>
           <CategorySelector value={category} onChange={setCategory} />
         </div>
 
         {/* Description */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-sage-600">具体说说</label>
+          <label className="mb-2 block text-sm font-medium text-surface-600">具体说说</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value.slice(0, MAX_DECISION_LENGTH))}
             placeholder={PLACEHOLDERS[category]}
             rows={5}
-            className="w-full resize-none rounded-xl border border-sage-200 bg-white p-4 text-sm text-sage-800 placeholder-sage-300 transition-colors focus:border-warm-400 focus:outline-none focus:ring-2 focus:ring-warm-100"
+            className="w-full resize-none rounded-xl border border-surface-200 bg-white p-4 text-sm text-surface-800 placeholder-surface-300 transition-colors focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
-          <p className="mt-1 text-right text-xs text-sage-400">{charCount}/{MAX_DECISION_LENGTH}</p>
+          <p className="mt-1 text-right text-xs text-surface-400">{charCount}/{MAX_DECISION_LENGTH}</p>
         </div>
 
         {/* Beliefs preview */}
         {beliefs.length > 0 && <BeliefsPreview beliefs={beliefs} />}
 
         {/* What you'll get */}
-        <div className="rounded-xl border border-sage-200 bg-sage-50/50 p-4">
-          <p className="text-xs font-medium text-sage-600">分析完你会看到：</p>
-          <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-sage-500">
+        <div className="rounded-xl border border-surface-200 bg-surface-50/50 p-4">
+          <p className="text-xs font-medium text-surface-600">分析完你会看到：</p>
+          <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-surface-500">
             <span>🔗 跟你相关的理论</span>
             <span>🪞 另一面的视角</span>
             <span>📋 可以做什么</span>
@@ -112,7 +112,7 @@ export function DecidePage() {
         <button
           onClick={handleSubmit}
           disabled={isSubmitting || !description.trim()}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-sage-800 py-4 text-base font-medium text-white transition-all hover:bg-sage-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-surface-800 py-4 text-base font-medium text-white transition-all hover:bg-surface-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
         >
           {isSubmitting ? (
             <>

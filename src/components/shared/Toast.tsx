@@ -10,7 +10,7 @@ export function Toast() {
   const bgColor = {
     success: 'bg-emerald-600',
     error: 'bg-red-500',
-    info: 'bg-sage-700',
+    info: 'bg-surface-700',
   }[toast.type]
 
   const icon = {

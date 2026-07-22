@@ -23,12 +23,12 @@ export function BeliefsPage() {
 
       <div className="mt-5 space-y-2">
         {beliefs.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-sage-200 p-8 text-center">
+          <div className="rounded-xl border border-dashed border-surface-200 p-8 text-center">
             <span className="text-3xl">🧭</span>
-            <p className="mt-2 text-sm text-sage-500">
+            <p className="mt-2 text-sm text-surface-500">
               还没有添加核心信念
             </p>
-            <p className="mt-1 text-xs text-sage-400">
+            <p className="mt-1 text-xs text-surface-400">
               比如："我要减熵"、"保持长期主义"、"健康第一"
             </p>
           </div>
@@ -60,7 +60,7 @@ export function BeliefsPage() {
       )}
 
       {beliefs.length >= MAX_BELIEFS && (
-        <p className="mt-4 text-center text-xs text-sage-400">
+        <p className="mt-4 text-center text-xs text-surface-400">
           最多 {MAX_BELIEFS} 条核心信念
         </p>
       )}

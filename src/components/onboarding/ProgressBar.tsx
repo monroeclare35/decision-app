@@ -10,13 +10,13 @@ export function ProgressBar({ ratedCount }: ProgressBarProps) {
 
   return (
     <div className="flex items-center gap-3">
-      <div className="h-2 flex-1 overflow-hidden rounded-full bg-sage-200">
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-200">
         <div
-          className="h-full rounded-full bg-warm-400 transition-all duration-500 ease-out"
+          className="h-full rounded-full bg-primary-400 transition-all duration-500 ease-out"
           style={{ width: `${percent}%` }}
         />
       </div>
-      <span className="text-xs font-medium text-sage-500 tabular-nums">
+      <span className="text-xs font-medium text-surface-500 tabular-nums">
         {ratedCount}/{ONBOARDING_TOTAL} · {percent}%
       </span>
     </div>

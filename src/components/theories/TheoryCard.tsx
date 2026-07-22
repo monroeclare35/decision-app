@@ -11,26 +11,26 @@ interface TheoryCardProps {
 
 export function TheoryCard({ theory, rating, onRate }: TheoryCardProps) {
   return (
-    <div className="card-shadow rounded-xl bg-white p-4">
+    <div className="card rounded-xl bg-white p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="inline-flex items-center rounded-full bg-sage-100 px-2 py-0.5 text-[10px] font-medium text-sage-500">
+            <span className="inline-flex items-center rounded-full bg-surface-100 px-2 py-0.5 text-[10px] font-medium text-surface-500">
               {DOMAIN_LABELS[theory.domain]}
             </span>
             {theory.source !== 'preset' && (
-              <span className="text-[10px] text-sage-400">
+              <span className="text-[10px] text-surface-400">
                 {theory.source === 'ai' ? 'AI 生成' : '自定义'}
               </span>
             )}
           </div>
-          <p className="text-sm text-sage-800">{theory.content}</p>
+          <p className="text-sm text-surface-800">{theory.content}</p>
           {theory.tags.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1">
               {theory.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full bg-sage-50 px-2 py-0.5 text-[10px] text-sage-400"
+                  className="rounded-full bg-surface-50 px-2 py-0.5 text-[10px] text-surface-400"
                 >
                   #{tag}
                 </span>
@@ -45,7 +45,7 @@ export function TheoryCard({ theory, rating, onRate }: TheoryCardProps) {
             size="sm"
           />
           {rating !== null && (
-            <p className="mt-0.5 text-center text-[10px] text-sage-400">
+            <p className="mt-0.5 text-center text-[10px] text-surface-400">
               {rating} 分
             </p>
           )}

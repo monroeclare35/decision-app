@@ -12,12 +12,12 @@ export function LandingPage() {
       {/* Hero */}
       <div className="animate-fade-in">
         <span className="text-7xl">🧿</span>
-        <h1 className="mt-6 text-3xl font-bold leading-tight text-sage-800">
+        <h1 className="mt-6 text-3xl font-bold leading-tight text-surface-800">
           找到属于你的
           <br />
-          <span className="text-warm-500">答案</span>
+          <span className="text-primary-500">答案</span>
         </h1>
-        <p className="mt-4 max-w-sm text-sm leading-relaxed text-sage-500">
+        <p className="mt-4 max-w-sm text-sm leading-relaxed text-surface-500">
           基于 50 条跨领域理论，形成你独一无二的"决策指纹"。
           <br />
           当你在犹豫不决时，AI 会用你的方式替你思考。
@@ -32,10 +32,10 @@ export function LandingPage() {
           { icon: '🧭', title: '核心信念', desc: '你的信念贯穿所有决策' },
           { icon: '💡', title: 'AI 分析', desc: '个性化、可执行的具体建议' },
         ].map((f) => (
-          <div key={f.title} className="card-shadow rounded-xl bg-white p-4">
+          <div key={f.title} className="card rounded-xl bg-white p-4">
             <span className="text-2xl">{f.icon}</span>
-            <h3 className="mt-2 text-sm font-semibold text-sage-700">{f.title}</h3>
-            <p className="mt-1 text-xs text-sage-500">{f.desc}</p>
+            <h3 className="mt-2 text-sm font-semibold text-surface-700">{f.title}</h3>
+            <p className="mt-1 text-xs text-surface-500">{f.desc}</p>
           </div>
         ))}
       </div>
@@ -45,14 +45,14 @@ export function LandingPage() {
         {!completed ? (
           <Link
             to="/onboarding"
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-sage-800 px-8 py-4 text-base font-medium text-white transition-all hover:bg-sage-700 active:scale-95"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-surface-800 px-8 py-4 text-base font-medium text-white transition-all hover:bg-surface-700 active:scale-95"
           >
             {hasStarted ? '继续测评' : '开始建立决策指纹'}
           </Link>
         ) : (
           <Link
             to="/decide"
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-sage-800 px-8 py-4 text-base font-medium text-white transition-all hover:bg-sage-700 active:scale-95"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-surface-800 px-8 py-4 text-base font-medium text-white transition-all hover:bg-surface-700 active:scale-95"
           >
             去做一个决定
           </Link>
@@ -60,7 +60,7 @@ export function LandingPage() {
         {hasStarted && !completed && (
           <Link
             to="/decide"
-            className="text-sm text-sage-400 underline-offset-2 hover:text-sage-600 hover:underline"
+            className="text-sm text-surface-400 underline-offset-2 hover:text-surface-600 hover:underline"
           >
             跳过测评，直接决策
           </Link>

@@ -34,7 +34,7 @@ export function TheoriesPage() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="rounded-xl border border-sage-200 bg-white px-3 py-2 text-xs text-sage-600 focus:outline-none"
+            className="rounded-xl border border-surface-200 bg-white px-3 py-2 text-xs text-surface-600 focus:outline-none"
           >
             <option value="default">默认排序</option>
             <option value="rating_high">评分高→低</option>
@@ -45,9 +45,9 @@ export function TheoriesPage() {
 
       <div className="mt-4 space-y-2">
         {theories.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-sage-200 p-8 text-center">
+          <div className="rounded-xl border border-dashed border-surface-200 p-8 text-center">
             <span className="text-3xl">🔍</span>
-            <p className="mt-2 text-sm text-sage-500">没有找到匹配的理论</p>
+            <p className="mt-2 text-sm text-surface-500">没有找到匹配的理论</p>
           </div>
         ) : (
           theories.map((theory) => (

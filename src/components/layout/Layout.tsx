@@ -9,7 +9,7 @@ export function Layout({ children }: { children?: React.ReactNode }) {
   const isFullscreen = FULLSCREEN_ROUTES.includes(location.pathname)
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-lg flex-col bg-cream-50">
+    <div className="mx-auto flex min-h-screen max-w-lg flex-col bg-surface-50">
       {!isFullscreen && <Navbar />}
       <main className="flex-1 px-4 pb-24 pt-4">{children ?? <Outlet />}</main>
     </div>

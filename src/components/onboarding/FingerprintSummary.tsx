@@ -45,26 +45,26 @@ export function FingerprintSummary() {
     <div className="animate-fade-in space-y-8">
       <div className="text-center">
         <span className="text-6xl">🧬</span>
-        <h2 className="mt-4 text-2xl font-bold text-sage-800">你的决策指纹已生成</h2>
-        <p className="mt-2 text-sm text-sage-500">
+        <h2 className="mt-4 text-2xl font-bold text-surface-800">你的决策指纹已生成</h2>
+        <p className="mt-2 text-sm text-surface-500">
           基于你的 50 条评分，我们绘制了你的决策偏好画像
         </p>
       </div>
 
       {/* Domain radar (simplified) */}
-      <div className="card-shadow rounded-2xl bg-white p-6">
-        <h3 className="mb-4 text-sm font-semibold text-sage-600">各领域倾向</h3>
+      <div className="card rounded-2xl bg-white p-6">
+        <h3 className="mb-4 text-sm font-semibold text-surface-600">各领域倾向</h3>
         <div className="space-y-3">
           {domainScores.map((d) => (
             <div key={d.domain} className="flex items-center gap-3">
-              <span className="w-20 text-xs text-sage-500">{d.label}</span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-sage-100">
+              <span className="w-20 text-xs text-surface-500">{d.label}</span>
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-100">
                 <div
-                  className="h-full rounded-full bg-warm-400 transition-all duration-700"
+                  className="h-full rounded-full bg-primary-400 transition-all duration-700"
                   style={{ width: `${(d.score / 5) * 100}%` }}
                 />
               </div>
-              <span className="w-8 text-right text-xs font-medium text-sage-700 tabular-nums">
+              <span className="w-8 text-right text-xs font-medium text-surface-700 tabular-nums">
                 {d.score}
               </span>
             </div>
@@ -73,26 +73,26 @@ export function FingerprintSummary() {
       </div>
 
       {/* Top theories */}
-      <div className="card-shadow rounded-2xl bg-white p-6">
-        <h3 className="mb-3 text-sm font-semibold text-sage-600">你最认同的观点</h3>
+      <div className="card rounded-2xl bg-white p-6">
+        <h3 className="mb-3 text-sm font-semibold text-surface-600">你最认同的观点</h3>
         <ul className="space-y-2">
           {topTheories.map((t) => (
             <li key={t.id} className="flex items-start gap-2 text-sm">
-              <span className="mt-0.5 text-warm-400">●</span>
-              <span className="text-sage-700">{t.content}</span>
+              <span className="mt-0.5 text-primary-400">●</span>
+              <span className="text-surface-700">{t.content}</span>
             </li>
           ))}
         </ul>
       </div>
 
       {/* Bottom theories */}
-      <div className="card-shadow rounded-2xl bg-white p-6">
-        <h3 className="mb-3 text-sm font-semibold text-sage-600">你不太认同的观点</h3>
+      <div className="card rounded-2xl bg-white p-6">
+        <h3 className="mb-3 text-sm font-semibold text-surface-600">你不太认同的观点</h3>
         <ul className="space-y-2">
           {bottomTheories.map((t) => (
             <li key={t.id} className="flex items-start gap-2 text-sm">
-              <span className="mt-0.5 text-sage-300">○</span>
-              <span className="text-sage-500">{t.content}</span>
+              <span className="mt-0.5 text-surface-300">○</span>
+              <span className="text-surface-500">{t.content}</span>
             </li>
           ))}
         </ul>
@@ -102,7 +102,7 @@ export function FingerprintSummary() {
       <div className="text-center">
         <Link
           to="/decide"
-          className="inline-flex items-center gap-2 rounded-2xl bg-sage-800 px-8 py-4 text-base font-medium text-white transition-all hover:bg-sage-700 active:scale-95"
+          className="inline-flex items-center gap-2 rounded-2xl bg-surface-800 px-8 py-4 text-base font-medium text-white transition-all hover:bg-surface-700 active:scale-95"
         >
           🚀 开始做第一个决定
         </Link>

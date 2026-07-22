@@ -71,23 +71,23 @@ function computeScore(
 function getCategoryBoost(domain: string, category: Category): number {
   // Map domains to their most relevant categories
   const domainCategoryMap: Record<string, Category[]> = {
-    relationships: ['emotional', 'general'],
-    career: ['financial', 'general'],
-    family: ['emotional', 'general'],
-    growth: ['general'],
-    finance: ['financial', 'general'],
-    productivity: ['general'],
-    cognition: ['emotional', 'general'],
-    decision: ['financial', 'general'],
-    health: ['meal', 'general'],
-    philosophy: ['emotional', 'general'],
-    wisdom: ['emotional', 'general', 'financial'],
-    trends: ['general', 'outfit', 'meal', 'emotional'],
+    relationships: ['social', 'love', 'daily'],
+    career: ['study_work', 'money', 'daily'],
+    family: ['love', 'social', 'daily'],
+    growth: ['study_work', 'daily'],
+    finance: ['money', 'daily'],
+    productivity: ['study_work', 'daily'],
+    cognition: ['social', 'love', 'daily'],
+    decision: ['money', 'study_work', 'daily'],
+    health: ['daily'],
+    philosophy: ['love', 'study_work', 'daily'],
+    wisdom: ['social', 'love', 'money', 'daily'],
+    trends: ['daily', 'study_work'],
   }
 
-  const relevantCategories = domainCategoryMap[domain] || ['general']
+  const relevantCategories = domainCategoryMap[domain] || ['daily']
   if (relevantCategories.includes(category)) {
-    return category === 'general' ? 0.1 : 0.3
+    return category === 'daily' ? 0.1 : 0.3
   }
   return 0
 }

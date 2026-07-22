@@ -23,8 +23,8 @@ export function DomainFilter({ value, onChange }: DomainFilterProps) {
           className={cn(
             'rounded-full border px-3 py-1.5 text-xs font-medium transition-all',
             value === item.value
-              ? 'border-warm-400 bg-warm-50 text-warm-700'
-              : 'border-sage-200 bg-white text-sage-500 hover:border-sage-300'
+              ? 'border-primary-400 bg-primary-50 text-primary-700'
+              : 'border-surface-200 bg-white text-surface-500 hover:border-surface-300'
           )}
         >
           {item.label}

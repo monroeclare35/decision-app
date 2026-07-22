@@ -54,7 +54,7 @@ export function OnboardingPage() {
   if (isComplete && !state.user.profile?.completedOnboarding) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-sage-500">正在生成你的决策指纹...</p>
+        <p className="text-surface-500">正在生成你的决策指纹...</p>
       </div>
     )
   }
@@ -62,10 +62,10 @@ export function OnboardingPage() {
   if (!currentTheory) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
-        <p className="text-sage-500">理论数据加载中...</p>
+        <p className="text-surface-500">理论数据加载中...</p>
         <button
           onClick={() => navigate('/')}
-          className="text-sm text-warm-500 underline"
+          className="text-sm text-primary-500 underline"
         >
           返回首页
         </button>
@@ -90,18 +90,18 @@ export function OnboardingPage() {
         <div className="flex items-center justify-between">
           <button
             onClick={() => navigate('/')}
-            className="text-xs text-sage-400 hover:text-sage-600"
+            className="text-xs text-surface-400 hover:text-surface-600"
           >
             ← 退出
           </button>
-          <span className="text-xs font-medium text-sage-500">
+          <span className="text-xs font-medium text-surface-500">
             第 {Math.min(onboardingIndex + 1, ONBOARDING_TOTAL)} / {ONBOARDING_TOTAL} 条
           </span>
           <button
             onClick={() => setShowProgressOverview(!showProgressOverview)}
             className={cn(
               'text-xs transition-colors',
-              showProgressOverview ? 'text-warm-500' : 'text-sage-400 hover:text-sage-600'
+              showProgressOverview ? 'text-primary-500' : 'text-surface-400 hover:text-surface-600'
             )}
           >
             {showProgressOverview ? '收起总览' : '查看进度'}
@@ -112,8 +112,8 @@ export function OnboardingPage() {
 
       {/* Progress overview (expandable) */}
       {showProgressOverview && (
-        <div className="mb-4 animate-slide-up rounded-xl border border-sage-200 bg-white p-3">
-          <div className="mb-2 flex items-center justify-between text-xs text-sage-500">
+        <div className="mb-4 animate-slide-up rounded-xl border border-surface-200 bg-white p-3">
+          <div className="mb-2 flex items-center justify-between text-xs text-surface-500">
             <span>答题进度总览</span>
             <span>
               已评 {ratedCount} · 未评 {unratedCount}
@@ -132,30 +132,30 @@ export function OnboardingPage() {
                   'h-7 w-7 rounded text-[10px] font-medium transition-all hover:scale-110',
                   item.rating !== null
                     ? item.rating >= 4
-                      ? 'bg-warm-400 text-white'
+                      ? 'bg-primary-400 text-white'
                       : item.rating >= 2
-                      ? 'bg-sage-300 text-white'
-                      : 'bg-sage-200 text-sage-600'
-                    : 'border border-dashed border-sage-300 text-sage-400',
-                  item.index === onboardingIndex && 'ring-2 ring-warm-300 ring-offset-1'
+                      ? 'bg-surface-300 text-white'
+                      : 'bg-surface-200 text-surface-600'
+                    : 'border border-dashed border-surface-300 text-surface-400',
+                  item.index === onboardingIndex && 'ring-2 ring-primary-300 ring-offset-1'
                 )}
               >
                 {item.index + 1}
               </button>
             ))}
           </div>
-          <div className="mt-2 flex items-center gap-3 text-[10px] text-sage-400">
+          <div className="mt-2 flex items-center gap-3 text-[10px] text-surface-400">
             <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded bg-warm-400" /> 认同
+              <span className="h-2 w-2 rounded bg-primary-400" /> 认同
             </span>
             <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded bg-sage-300" /> 中性
+              <span className="h-2 w-2 rounded bg-surface-300" /> 中性
             </span>
             <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded bg-sage-200" /> 不认同
+              <span className="h-2 w-2 rounded bg-surface-200" /> 不认同
             </span>
             <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded border border-dashed border-sage-300" /> 未评
+              <span className="h-2 w-2 rounded border border-dashed border-surface-300" /> 未评
             </span>
           </div>
         </div>
@@ -180,7 +180,7 @@ export function OnboardingPage() {
         <button
           onClick={prev}
           disabled={onboardingIndex === 0}
-          className="rounded-xl border border-sage-200 px-5 py-3 text-sm text-sage-600 transition-all hover:bg-sage-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
+          className="rounded-xl border border-surface-200 px-5 py-3 text-sm text-surface-600 transition-all hover:bg-surface-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
         >
           ← 上一题
         </button>
@@ -188,7 +188,7 @@ export function OnboardingPage() {
         <button
           onClick={next}
           disabled={onboardingIndex >= ONBOARDING_TOTAL - 1}
-          className="rounded-xl border border-sage-200 px-5 py-3 text-sm text-sage-600 transition-all hover:bg-sage-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
+          className="rounded-xl border border-surface-200 px-5 py-3 text-sm text-surface-600 transition-all hover:bg-surface-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
         >
           下一题 →
         </button>
@@ -208,7 +208,7 @@ export function OnboardingPage() {
                 setShowSummary(true)
               }
             }}
-            className="rounded-xl bg-warm-500 px-4 py-3 text-sm font-medium text-white transition-all hover:bg-warm-600 active:scale-95"
+            className="rounded-xl bg-primary-500 px-4 py-3 text-sm font-medium text-white transition-all hover:bg-primary-600 active:scale-95"
           >
             交卷
           </button>

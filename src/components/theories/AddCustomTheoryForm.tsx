@@ -73,7 +73,7 @@ export function AddCustomTheoryForm({ onAdd }: AddCustomTheoryFormProps) {
     return (
       <button
         onClick={() => setExpanded(true)}
-        className="w-full rounded-xl border border-dashed border-sage-300 py-4 text-sm text-sage-500 transition-colors hover:border-sage-400 hover:text-sage-600"
+        className="w-full rounded-xl border border-dashed border-surface-300 py-4 text-sm text-surface-500 transition-colors hover:border-surface-400 hover:text-surface-600"
       >
         + 添加一条你自己的理论
       </button>
@@ -81,10 +81,10 @@ export function AddCustomTheoryForm({ onAdd }: AddCustomTheoryFormProps) {
   }
 
   return (
-    <div className="card-shadow rounded-xl bg-white p-4 space-y-3">
+    <div className="card rounded-xl bg-white p-4 space-y-3">
       {/* Step 1: Concept name + AI button */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-sage-500">
+        <label className="mb-1 block text-xs font-medium text-surface-500">
           你想添加什么理论？写个名字就行，AI 帮你补全
         </label>
         <div className="flex gap-2">
@@ -98,14 +98,14 @@ export function AddCustomTheoryForm({ onAdd }: AddCustomTheoryFormProps) {
               if (e.key === 'Enter') handleAutoComplete()
             }}
             placeholder="比如：一万小时定律、墨菲定律..."
-            className="flex-1 rounded-lg border border-sage-200 px-3 py-2.5 text-sm text-sage-800 placeholder-sage-300 focus:border-warm-400 focus:outline-none focus:ring-2 focus:ring-warm-100"
+            className="flex-1 rounded-lg border border-surface-200 px-3 py-2.5 text-sm text-surface-800 placeholder-surface-300 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
           <button
             onClick={handleAutoComplete}
             disabled={!concept.trim() || isAutocompleting}
             className={cn(
               'flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-medium transition-all',
-              'bg-warm-500 text-white hover:bg-warm-600 active:scale-95',
+              'bg-primary-500 text-white hover:bg-primary-600 active:scale-95',
               'disabled:cursor-not-allowed disabled:opacity-40'
             )}
           >
@@ -122,14 +122,14 @@ export function AddCustomTheoryForm({ onAdd }: AddCustomTheoryFormProps) {
       {(hasAutocompleted || content) && (
         <div className="space-y-3 animate-slide-up">
           <div>
-            <label className="mb-1 block text-xs font-medium text-sage-500">
+            <label className="mb-1 block text-xs font-medium text-surface-500">
               理论内容（可修改）
             </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={3}
-              className="w-full resize-none rounded-lg border border-sage-200 p-3 text-sm text-sage-800 placeholder-sage-300 focus:border-warm-400 focus:outline-none focus:ring-2 focus:ring-warm-100"
+              className="w-full resize-none rounded-lg border border-surface-200 p-3 text-sm text-surface-800 placeholder-surface-300 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
             />
           </div>
 
@@ -137,7 +137,7 @@ export function AddCustomTheoryForm({ onAdd }: AddCustomTheoryFormProps) {
             <select
               value={domain}
               onChange={(e) => setDomain(e.target.value as Domain)}
-              className="rounded-lg border border-sage-200 bg-white px-3 py-2 text-xs text-sage-600"
+              className="rounded-lg border border-surface-200 bg-white px-3 py-2 text-xs text-surface-600"
             >
               {(Object.keys(DOMAIN_LABELS) as Domain[]).map((d) => (
                 <option key={d} value={d}>
@@ -149,7 +149,7 @@ export function AddCustomTheoryForm({ onAdd }: AddCustomTheoryFormProps) {
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               placeholder="标签，逗号分隔"
-              className="flex-1 rounded-lg border border-sage-200 px-3 py-2 text-xs text-sage-800 placeholder-sage-300 focus:border-warm-400 focus:outline-none"
+              className="flex-1 rounded-lg border border-surface-200 px-3 py-2 text-xs text-surface-800 placeholder-surface-300 focus:border-primary-400 focus:outline-none"
             />
           </div>
 
@@ -157,13 +157,13 @@ export function AddCustomTheoryForm({ onAdd }: AddCustomTheoryFormProps) {
             <button
               onClick={handleSubmit}
               disabled={!content.trim()}
-              className="rounded-lg bg-sage-800 px-4 py-2 text-xs font-medium text-white transition-all hover:bg-sage-700 disabled:opacity-40"
+              className="rounded-lg bg-surface-800 px-4 py-2 text-xs font-medium text-white transition-all hover:bg-surface-700 disabled:opacity-40"
             >
               添加到理论库
             </button>
             <button
               onClick={() => setExpanded(false)}
-              className="rounded-lg border border-sage-200 px-4 py-2 text-xs text-sage-500"
+              className="rounded-lg border border-surface-200 px-4 py-2 text-xs text-surface-500"
             >
               取消
             </button>

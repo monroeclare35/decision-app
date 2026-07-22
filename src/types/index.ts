@@ -14,7 +14,7 @@ export type Domain =
   | 'wisdom'           // 处世智慧
   | 'trends'           // 网络思潮
 
-export type Category = 'emotional' | 'financial' | 'meal' | 'outfit' | 'general'
+export type Category = 'love' | 'money' | 'study_work' | 'social' | 'daily'
 
 export const DOMAIN_LABELS: Record<Domain, string> = {
   relationships: '人际关系',
@@ -47,19 +47,27 @@ export const DOMAIN_ICONS: Record<Domain, string> = {
 }
 
 export const CATEGORY_LABELS: Record<Category, string> = {
-  emotional: '情感决策',
-  financial: '理财决策',
-  meal: '吃饭决策',
-  outfit: '穿搭决策',
-  general: '通用决策',
+  love: '感情',
+  money: '钱',
+  study_work: '学业/事业',
+  social: '人际关系',
+  daily: '日常困扰',
 }
 
 export const CATEGORY_ICONS: Record<Category, string> = {
-  emotional: '💗',
-  financial: '💰',
-  meal: '🍜',
-  outfit: '👔',
-  general: '🤔',
+  love: '❤️',
+  money: '💰',
+  study_work: '🎓',
+  social: '👥',
+  daily: '📦',
+}
+
+// Fallback for old category values in history
+export function getCategoryLabel(cat: string): string {
+  return CATEGORY_LABELS[cat as Category] || '通用'
+}
+export function getCategoryIcon(cat: string): string {
+  return CATEGORY_ICONS[cat as Category] || '🤔'
 }
 
 // ============ Theory ============

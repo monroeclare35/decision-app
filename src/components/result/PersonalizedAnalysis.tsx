@@ -15,10 +15,10 @@ export function PersonalizedAnalysis({ text }: PersonalizedAnalysisProps) {
     .join('')
 
   return (
-    <div className="card-shadow rounded-xl bg-white p-5">
-      <h3 className="mb-3 text-sm font-semibold text-sage-600">个性化分析</h3>
+    <div className="card rounded-xl bg-white p-5">
+      <h3 className="mb-3 text-sm font-semibold text-surface-600">个性化分析</h3>
       <div
-        className="prose prose-sm max-w-none text-sm leading-relaxed text-sage-700"
+        className="prose prose-sm max-w-none text-sm leading-relaxed text-surface-700"
         dangerouslySetInnerHTML={{ __html: rendered }}
       />
     </div>

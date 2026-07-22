@@ -11,7 +11,7 @@ export function LoadingSkeleton({ lines = 5, className }: LoadingSkeletonProps) 
       {Array.from({ length: lines }).map((_, i) => (
         <div
           key={i}
-          className="rounded-lg bg-sage-100"
+          className="rounded-lg bg-surface-100"
           style={{
             height: `${Math.max(16, 24 - i * 2)}px`,
             width: i === lines - 1 ? '60%' : '100%',

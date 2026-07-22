@@ -67,9 +67,9 @@ export function SettingsPage() {
 
       <div className="space-y-6">
         {/* AI Provider */}
-        <div className="card-shadow rounded-xl bg-white p-5">
-          <h3 className="text-sm font-semibold text-sage-700">AI 提供商</h3>
-          <p className="mt-1 text-xs text-sage-500">
+        <div className="card rounded-xl bg-white p-5">
+          <h3 className="text-sm font-semibold text-surface-700">AI 提供商</h3>
+          <p className="mt-1 text-xs text-surface-500">
             选择使用哪个 AI 服务来做决策分析
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2">
@@ -80,29 +80,29 @@ export function SettingsPage() {
                 className={cn(
                   'rounded-xl border-2 p-3 text-left transition-all',
                   provider === p.id
-                    ? 'border-warm-400 bg-warm-50'
-                    : 'border-sage-200 bg-white hover:border-sage-300'
+                    ? 'border-primary-400 bg-primary-50'
+                    : 'border-surface-200 bg-white hover:border-surface-300'
                 )}
               >
-                <p className="text-sm font-semibold text-sage-800">{p.label}</p>
-                <p className="mt-0.5 text-[11px] text-sage-500">{p.desc}</p>
+                <p className="text-sm font-semibold text-surface-800">{p.label}</p>
+                <p className="mt-0.5 text-[11px] text-surface-500">{p.desc}</p>
               </button>
             ))}
           </div>
         </div>
 
         {/* API Key */}
-        <div className="card-shadow rounded-xl bg-white p-5">
-          <h3 className="text-sm font-semibold text-sage-700">
+        <div className="card rounded-xl bg-white p-5">
+          <h3 className="text-sm font-semibold text-surface-700">
             {activeProvider.label} API Key
           </h3>
-          <p className="mt-1 text-xs text-sage-500">
+          <p className="mt-1 text-xs text-surface-500">
             用于 AI 决策分析。Key 仅保存在浏览器本地。
           </p>
 
           {apiKey && showMasked ? (
             <div className="mt-3 flex items-center gap-2">
-              <code className="flex-1 rounded-lg bg-sage-50 px-3 py-2 text-xs text-sage-600">
+              <code className="flex-1 rounded-lg bg-surface-50 px-3 py-2 text-xs text-surface-600">
                 {maskedKey}
               </code>
               <button
@@ -110,7 +110,7 @@ export function SettingsPage() {
                   setShowMasked(false)
                   setKeyInput(apiKey)
                 }}
-                className="rounded-lg border border-sage-200 px-3 py-2 text-xs text-sage-500 hover:bg-sage-50"
+                className="rounded-lg border border-surface-200 px-3 py-2 text-xs text-surface-500 hover:bg-surface-50"
               >
                 修改
               </button>
@@ -122,19 +122,19 @@ export function SettingsPage() {
                 onChange={(e) => setKeyInput(e.target.value)}
                 placeholder={activeProvider.placeholder}
                 type="password"
-                className="w-full rounded-lg border border-sage-200 px-3 py-2 text-sm text-sage-800 placeholder-sage-300 focus:border-warm-400 focus:outline-none focus:ring-2 focus:ring-warm-100"
+                className="w-full rounded-lg border border-surface-200 px-3 py-2 text-sm text-surface-800 placeholder-surface-300 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
               />
               <button
                 onClick={handleSaveKey}
                 disabled={!keyInput.trim()}
-                className="rounded-lg bg-sage-800 px-4 py-2 text-xs font-medium text-white transition-all hover:bg-sage-700 disabled:opacity-40"
+                className="rounded-lg bg-surface-800 px-4 py-2 text-xs font-medium text-white transition-all hover:bg-surface-700 disabled:opacity-40"
               >
                 保存
               </button>
               {apiKey && (
                 <button
                   onClick={() => setShowMasked(true)}
-                  className="ml-2 rounded-lg border border-sage-200 px-4 py-2 text-xs text-sage-500"
+                  className="ml-2 rounded-lg border border-surface-200 px-4 py-2 text-xs text-surface-500"
                 >
                   取消
                 </button>
@@ -143,26 +143,26 @@ export function SettingsPage() {
           )}
 
           {provider === 'deepseek' && (
-            <p className="mt-3 text-[11px] text-sage-400">
+            <p className="mt-3 text-[11px] text-surface-400">
               获取 Key：访问{' '}
               <a
                 href="https://platform.deepseek.com/api_keys"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-warm-500 underline"
+                className="text-primary-500 underline"
               >
                 platform.deepseek.com
               </a>
             </p>
           )}
           {provider === 'claude' && (
-            <p className="mt-3 text-[11px] text-sage-400">
+            <p className="mt-3 text-[11px] text-surface-400">
               获取 Key：访问{' '}
               <a
                 href="https://console.anthropic.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-warm-500 underline"
+                className="text-primary-500 underline"
               >
                 console.anthropic.com
               </a>
@@ -171,15 +171,15 @@ export function SettingsPage() {
         </div>
 
         {/* Data management */}
-        <div className="card-shadow rounded-xl bg-white p-5">
-          <h3 className="text-sm font-semibold text-sage-700">数据管理</h3>
-          <p className="mt-1 text-xs text-sage-500">
+        <div className="card rounded-xl bg-white p-5">
+          <h3 className="text-sm font-semibold text-surface-700">数据管理</h3>
+          <p className="mt-1 text-xs text-surface-500">
             导出或清除本地数据
           </p>
           <div className="mt-3 flex gap-2">
             <button
               onClick={handleExport}
-              className="rounded-lg border border-sage-200 px-4 py-2 text-xs font-medium text-sage-600 transition-colors hover:bg-sage-50"
+              className="rounded-lg border border-surface-200 px-4 py-2 text-xs font-medium text-surface-600 transition-colors hover:bg-surface-50"
             >
               📥 导出数据
             </button>
@@ -193,12 +193,12 @@ export function SettingsPage() {
         </div>
 
         {/* About */}
-        <div className="card-shadow rounded-xl bg-white p-5">
-          <h3 className="text-sm font-semibold text-sage-700">关于</h3>
-          <p className="mt-1 text-xs text-sage-500">
+        <div className="card rounded-xl bg-white p-5">
+          <h3 className="text-sm font-semibold text-surface-700">关于</h3>
+          <p className="mt-1 text-xs text-surface-500">
             决策助手 v1.0 — 基于你的个人偏好，用 AI 帮你做更好的决策。
           </p>
-          <p className="mt-2 text-xs text-sage-400">
+          <p className="mt-2 text-xs text-surface-400">
             所有数据保存在你的浏览器中。我们不会收集或上传任何个人信息。
           </p>
         </div>
