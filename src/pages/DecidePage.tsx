@@ -9,6 +9,14 @@ import { LoadingSpinner } from '../components/shared/LoadingSpinner'
 import type { Category } from '../types'
 import { MAX_DECISION_LENGTH } from '../constants/config'
 
+const PLACEHOLDERS: Record<Category, string> = {
+  general: '随便写，比如："要不要搬去另一个城市？拿不定主意"',
+  financial: '比如："手头有2万闲钱，是出去旅游还是存起来？"',
+  emotional: '比如："朋友老借钱不还，这次又开口了，不知道该怎么拒绝"',
+  meal: '比如："今天特别想吃火锅，但最近在控体重，好纠结"',
+  outfit: '比如："看中一件大衣小两千，挺好看的但怕买回去穿不了几次"',
+}
+
 export function DecidePage() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -17,11 +25,9 @@ export function DecidePage() {
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState<Category>('general')
 
-  // Show a toast if user navigated back from a result page
   useEffect(() => {
     if ((location.state as { fromResult?: boolean })?.fromResult) {
       showToast('刚才的分析结果可在"历史"中查看 📋', 'info')
-      // Clear the state so it doesn't re-trigger on re-renders
       window.history.replaceState({}, '')
     }
   }, [location.state, showToast])
@@ -42,71 +48,64 @@ export function DecidePage() {
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="做决定"
-        subtitle="描述你正在纠结的事，让 AI 用你的方式帮你理清思路"
+        title="拿不定主意？"
+        subtitle="把让你纠结的事写下来，AI 根据你的偏好给你梳理思路。大概需要 15-30 秒。"
         icon="🎯"
       />
 
       {!profile?.completedOnboarding && (
         <div className="mb-4 rounded-xl border border-warm-200 bg-warm-50 p-4 text-sm text-warm-700">
-          💡 提示：完成{' '}
-          <button
-            onClick={() => navigate('/onboarding')}
-            className="font-medium underline"
-          >
-            决策指纹测评
-          </button>
-          {' '}能让我更了解你的偏好，建议更精准
+          💡 还没做过偏好测评，先花两分钟做 10 道题{' '}
+          <button onClick={() => navigate('/onboarding')} className="font-medium underline">测一下</button>
+          ，分析会更贴合你。
         </div>
       )}
 
       {!hasApiKey && (
         <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          ⚠️ 请先前往{' '}
-          <button
-            onClick={() => navigate('/settings')}
-            className="font-medium underline"
-          >
-            设置页面
-          </button>
-          {' '}填写 API Key
+          ⚠️ 先去{' '}
+          <button onClick={() => navigate('/settings')} className="font-medium underline">设置</button>
+          {' '}填个 API Key，才能分析
         </div>
       )}
 
       <div className="space-y-5">
         {/* Category */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-sage-600">
-            决策类别
-          </label>
+          <label className="mb-2 block text-sm font-medium text-sage-600">什么事？</label>
           <CategorySelector value={category} onChange={setCategory} />
         </div>
 
         {/* Description */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-sage-600">
-            描述你的困境
-          </label>
+          <label className="mb-2 block text-sm font-medium text-sage-600">具体说说</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value.slice(0, MAX_DECISION_LENGTH))}
-            placeholder="比如：最近想买一台相机，预算5000，但又在纠结是不是该把这笔钱投入基金..."
+            placeholder={PLACEHOLDERS[category]}
             rows={5}
             className="w-full resize-none rounded-xl border border-sage-200 bg-white p-4 text-sm text-sage-800 placeholder-sage-300 transition-colors focus:border-warm-400 focus:outline-none focus:ring-2 focus:ring-warm-100"
           />
-          <p className="mt-1 text-right text-xs text-sage-400">
-            {charCount}/{MAX_DECISION_LENGTH}
-          </p>
+          <p className="mt-1 text-right text-xs text-sage-400">{charCount}/{MAX_DECISION_LENGTH}</p>
         </div>
 
         {/* Beliefs preview */}
         {beliefs.length > 0 && <BeliefsPreview beliefs={beliefs} />}
 
+        {/* What you'll get */}
+        <div className="rounded-xl border border-sage-200 bg-sage-50/50 p-4">
+          <p className="text-xs font-medium text-sage-600">分析完你会看到：</p>
+          <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-sage-500">
+            <span>🔗 跟你相关的理论</span>
+            <span>🪞 另一面的视角</span>
+            <span>📋 可以做什么</span>
+            <span>📖 相似情境参考</span>
+          </div>
+        </div>
+
         {/* Error */}
         {error && (
-          <div className="rounded-xl bg-red-50 p-3 text-sm text-red-600">
-            {error}
-          </div>
+          <div className="rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</div>
         )}
 
         {/* Submit */}
@@ -118,12 +117,12 @@ export function DecidePage() {
           {isSubmitting ? (
             <>
               <LoadingSpinner size="sm" />
-              <span>正在分析...</span>
+              <span>分析中，大概 15-30 秒...</span>
             </>
           ) : (
             <>
               <span>🧿</span>
-              <span>帮我分析</span>
+              <span>帮我理一理</span>
             </>
           )}
         </button>
