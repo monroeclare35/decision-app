@@ -179,7 +179,7 @@ export function ProbingPage() {
       <div className="flex min-h-screen flex-col items-center justify-center gap-3 px-4">
         <span className="text-4xl">🔍</span>
         <p className="text-sm text-surface-500">
-          {isGeneratingFollowUp ? '正在分析你的回答…' : '正在综合分析，生成建议…'}
+          {isGeneratingFollowUp ? '正在整理追问…' : '正在综合分析，生成建议…'}
         </p>
         <div className="h-1.5 w-48 overflow-hidden rounded-full bg-surface-100">
           <div className="h-full w-2/3 animate-pulse rounded-full bg-primary-300" />
@@ -202,11 +202,11 @@ export function ProbingPage() {
     )
   }
 
-  const phaseLabel = currentPhase === 'probing' ? '场景探测' : '深化追问'
+  const phaseLabel = currentPhase === 'probing' ? '场景探测' : '再聊聊你'
   const phaseSubtitle =
     currentPhase === 'probing'
       ? '以下是根据你的困境生成的情景，按真实想法选'
-      : '发现了你回答中的矛盾，再追问几道'
+      : '咪儿想更了解你的具体情况，像朋友聊天一样，放开了说'
 
   return (
     <div className="flex min-h-screen flex-col px-4 pb-8 pt-6">
