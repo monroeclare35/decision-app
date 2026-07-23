@@ -24,7 +24,12 @@ export function TheoryCard({ theory, rating, onRate }: TheoryCardProps) {
               </span>
             )}
           </div>
-          <p className="text-sm text-surface-800">{theory.content}</p>
+          {theory.name && (
+            <p className="text-sm font-semibold text-surface-800">{theory.name}</p>
+          )}
+          <p className={cn('text-sm text-surface-600', theory.name && 'text-xs mt-0.5')}>
+            {theory.content}
+          </p>
           {theory.tags.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1">
               {theory.tags.map((tag) => (

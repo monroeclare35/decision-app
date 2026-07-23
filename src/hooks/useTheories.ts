@@ -18,6 +18,7 @@ export function useTheories() {
       result = result.filter(
         (t) =>
           t.content.toLowerCase().includes(lower) ||
+          (t.name && t.name.toLowerCase().includes(lower)) ||
           t.tags.some((tag) => tag.toLowerCase().includes(lower))
       )
     }

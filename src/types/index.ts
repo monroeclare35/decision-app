@@ -74,6 +74,7 @@ export function getCategoryIcon(cat: string): string {
 
 export interface Theory {
   id: string
+  name?: string         // short label, e.g. "信任前置" — omitted for famous quotes/sayings
   content: string
   domain: Domain
   tags: string[]

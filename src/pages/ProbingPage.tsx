@@ -1,16 +1,24 @@
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState, useRef } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAppContext } from '../hooks/useAppContext'
 import { useProbing } from '../hooks/useProbing'
 import { useDecisionSubmit } from '../hooks/useDecisionSubmit'
+import { generateProbeScenarios } from '../services/ai'
 import { ScenarioCard } from '../components/onboarding/ScenarioCard'
-import { LoadingSpinner } from '../components/shared/LoadingSpinner'
-import { PageHeader } from '../components/layout/PageHeader'
-import { cn } from '../utils/cn'
+import { PROBE_SCENARIO_COUNT } from '../constants/config'
+import type { Category, DecisionProbeState } from '../types'
+
+// Loading stages for the progress bar
+const LOADING_STAGES = [
+  { label: '分析你的困境…', pct: 30 },
+  { label: '匹配相关理论…', pct: 60 },
+  { label: '生成探测情景…', pct: 90 },
+]
 
 export function ProbingPage() {
   const navigate = useNavigate()
-  const { state } = useAppContext()
+  const location = useLocation()
+  const { state, setProbeState } = useAppContext()
   const { submitFinalAnalysis, isSubmitting: isAnalyzing } = useDecisionSubmit()
   const {
     probeState,
@@ -18,19 +26,90 @@ export function ProbingPage() {
     currentPhase,
     totalScenarios,
     progress,
-    isLoading: isGenerating,
+    isLoading: isGeneratingFollowUp,
     error,
     answerCurrent,
     skipCurrent,
   } = useProbing()
 
-  // Redirect if no probe state
+  // Incoming dilemma from DecidePage
+  const incoming = (location.state as { dilemma?: string; category?: Category } | null)
+  const hasIncoming = !!incoming?.dilemma
+  const generatingRef = useRef(false)
+
+  // Loading state for initial probe generation
+  const [isGeneratingProbes, setIsGeneratingProbes] = useState(false)
+  const [loadingStage, setLoadingStage] = useState(0)
+  const [loadingBarPct, setLoadingBarPct] = useState(0)
+
+  // Generate probe scenarios on mount if this is a new submission
   useEffect(() => {
-    if (!state.probing.currentState) {
-      navigate('/decide', { replace: true })
-      return
+    if (!hasIncoming || generatingRef.current) return
+    generatingRef.current = true
+
+    const generate = async () => {
+      const { apiKey, provider } = state.settings
+      if (!apiKey || !incoming?.dilemma) {
+        navigate('/decide', { replace: true })
+        return
+      }
+
+      setIsGeneratingProbes(true)
+
+      // Animate loading stages
+      for (let i = 0; i < LOADING_STAGES.length; i++) {
+        setLoadingStage(i)
+        setLoadingBarPct(LOADING_STAGES[i].pct)
+        await new Promise((r) => setTimeout(r, 600 + Math.random() * 400))
+      }
+
+      try {
+        const theories = state.theories.library
+        const theoriesSummary = theories
+          .slice(0, 50)
+          .map((t) => `[${t.id}] ${t.content} (领域: ${t.domain})`)
+          .join('\n')
+
+        const probeScenarios = await generateProbeScenarios({
+          config: { provider, apiKey },
+          dilemma: incoming.dilemma,
+          category: incoming.category || 'daily',
+          theoriesSummary,
+          count: PROBE_SCENARIO_COUNT,
+        })
+
+        setLoadingBarPct(100)
+        await new Promise((r) => setTimeout(r, 300))
+
+        // Clear location state so refresh doesn't re-trigger
+        window.history.replaceState({}, '')
+
+        const probeState: DecisionProbeState = {
+          phase: 'probing',
+          probeScenarios,
+          followUpScenarios: [],
+          scenarioAnswers: [],
+          currentIndex: 0,
+          dilemma: incoming.dilemma,
+          category: incoming.category || 'daily',
+        }
+        setProbeState(probeState)
+      } catch (err) {
+        navigate('/decide', { replace: true })
+      } finally {
+        setIsGeneratingProbes(false)
+      }
     }
-  }, [state.probing.currentState, navigate])
+
+    generate()
+  }, [hasIncoming])
+
+  // Redirect if no probe state and no incoming
+  useEffect(() => {
+    if (!state.probing.currentState && !hasIncoming) {
+      navigate('/decide', { replace: true })
+    }
+  }, [state.probing.currentState, hasIncoming, navigate])
 
   // If phase is complete, submit final analysis
   useEffect(() => {
@@ -45,20 +124,46 @@ export function ProbingPage() {
     }
   }, [probeState?.phase])
 
-  // Loading state while generating follow-up scenarios
-  if (isGenerating || isAnalyzing) {
+  // --- Loading: initial probe generation ---
+  if (isGeneratingProbes) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
-        <LoadingSpinner size="lg" />
-        <p className="text-sm text-surface-500">
-          {isGenerating ? '正在分析你的回答，生成深化追问...' : '正在综合分析，生成个性化建议...'}
+      <div className="flex min-h-screen flex-col items-center justify-center px-6">
+        <span className="text-4xl">🧿</span>
+        <h3 className="mt-4 text-lg font-semibold text-surface-700">
+          {LOADING_STAGES[loadingStage]?.label}
+        </h3>
+
+        {/* Animated progress bar */}
+        <div className="mt-6 h-2 w-64 overflow-hidden rounded-full bg-surface-100">
+          <div
+            className="h-full rounded-full bg-primary-400 transition-all duration-700 ease-out"
+            style={{ width: `${loadingBarPct}%` }}
+          />
+        </div>
+
+        <p className="mt-3 text-xs text-surface-400">
+          正在为你定制探测情景，稍等几秒
         </p>
-        <p className="text-xs text-surface-400">大概需要 15-30 秒</p>
       </div>
     )
   }
 
-  // No probe state (redirecting)
+  // --- Loading: generating follow-up or final analysis ---
+  if (isGeneratingFollowUp || isAnalyzing) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 px-4">
+        <span className="text-4xl">🔍</span>
+        <p className="text-sm text-surface-500">
+          {isGeneratingFollowUp ? '正在分析你的回答…' : '正在综合分析，生成建议…'}
+        </p>
+        <div className="h-1.5 w-48 overflow-hidden rounded-full bg-surface-100">
+          <div className="h-full w-2/3 animate-pulse rounded-full bg-primary-300" />
+        </div>
+      </div>
+    )
+  }
+
+  // No probe state (redirecting or nothing to show)
   if (!probeState) {
     return null
   }
@@ -75,8 +180,8 @@ export function ProbingPage() {
   const phaseLabel = currentPhase === 'probing' ? '场景探测' : '深化追问'
   const phaseSubtitle =
     currentPhase === 'probing'
-      ? '以下是根据你的困境生成的情景，请按真实想法选择'
-      : '我们发现了你回答中的一些有意思的地方，再追问几个问题'
+      ? '以下是根据你的困境生成的情景，按真实想法选'
+      : '发现了你回答中的矛盾，再追问几道'
 
   return (
     <div className="flex min-h-screen flex-col px-4 pb-8 pt-6">
@@ -116,15 +221,9 @@ export function ProbingPage() {
         <div className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-red-600">
           {error}
           <button
-            onClick={() => {
-              // Fallback: skip probing, go straight to analysis
-              if (probeState) {
-                const run = async () => {
-                  const decisionId = await submitFinalAnalysis()
-                  if (decisionId) navigate(`/result/${decisionId}`, { replace: true })
-                }
-                run()
-              }
+            onClick={async () => {
+              const decisionId = await submitFinalAnalysis()
+              if (decisionId) navigate(`/result/${decisionId}`, { replace: true })
             }}
             className="ml-2 font-medium underline"
           >

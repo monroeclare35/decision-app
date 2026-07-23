@@ -1,71 +1,132 @@
 import { useMemo } from 'react'
 import { useAppContext } from '../../hooks/useAppContext'
-import { DOMAIN_LABELS } from '../../types'
-import type { Domain } from '../../types'
 import { Link } from 'react-router-dom'
-import { ONBOARDING_SCENARIOS } from '../../data/theories'
+import { ONBOARDING_SCENARIOS, PRESET_THEORIES } from '../../data/theories'
 
-interface Evaluation {
-  style: string
-  emoji: string
-  styleDesc: string
-  trait: string
+// Tag-based dimension analysis.
+// Each theory in PRESET_THEORIES has tags — we aggregate chosen-theory tags
+// to reveal the user's actual tendencies (not just domain distribution).
+
+interface ProfileDimensions {
+  risk: 'conservative' | 'balanced' | 'aggressive'  // 风险态度
+  think: 'rational' | 'intuitive'                     // 思维方式
+  social: 'trusting' | 'cautious'                     // 社交倾向
+  decide: 'analytical' | 'practical'                  // 决策速度
 }
 
-function buildEvaluation(
-  domainCounts: Map<Domain, number>,
-  totalAnswers: number
-): Evaluation {
-  const domains = [...domainCounts.entries()].sort((a, b) => b[1] - a[1])
-  if (domains.length === 0) {
-    return {
-      style: '数据不足',
-      emoji: '🤔',
-      styleDesc: '你还没有完成足够的场景探测。',
-      trait: '再做几道情景题，我们就能分析你的决策风格了。',
-    }
-  }
+// Map tag keywords to dimensions
+const TAG_RISK_CONSERVATIVE = new Set(['安全', '储蓄', '稳健', '止损', '备胎', '退路', '保守', '忍耐', '生存', '节俭'])
+const TAG_RISK_AGGRESSIVE = new Set(['冒险', '冲劲', '机会', '开源', '收入', '自由', '进取', '果断'])
+const TAG_THINK_RATIONAL = new Set(['理性', '逻辑', '批判', '客观', '分析', '复盘', '冷静'])
+const TAG_THINK_INTUITIVE = new Set(['直觉', '感受', '情绪', '冲动', '本能', '体验', '热爱'])
+const TAG_SOCIAL_TRUSTING = new Set(['信任', '善意', '开放', '坦诚', '沟通', '直球'])
+const TAG_SOCIAL_CAUTIOUS = new Set(['边界', '界限', '保留', '警惕', '距离', '底线', '备胎'])
+const TAG_DECIDE_ANALYTICAL = new Set(['分析', '深思', '三思', '权衡', '规划', '长远', '准备'])
+const TAG_DECIDE_PRACTICAL = new Set(['行动', '执行', '简单', '简化', '果断', '当下', '快速'])
 
-  const topDomain = domains[0]
-  const domainCount = domains.length
-  const maxCount = topDomain[1]
-  const uniqueDomains = domainCount
+function classifyTags(tags: string[]): ProfileDimensions {
+  let riskConservative = 0, riskAggressive = 0
+  let thinkRational = 0, thinkIntuitive = 0
+  let socialTrusting = 0, socialCautious = 0
+  let decideAnalytical = 0, decidePractical = 0
 
-  // How concentrated are the choices in the top domain?
-  const concentration = maxCount / totalAnswers
-
-  if (uniqueDomains >= 4 && concentration <= 0.3) {
-    return {
-      style: '情境依赖型',
-      emoji: '🦎',
-      styleDesc: '你在不同领域的情境中展现了不同的决策倾向——没有一套固定的原则适用于所有场景。这说明你对情境非常敏感，会根据具体情况调整策略。这是适应力的体现，但也可能意味着你在某些领域的原则和行动之间存在张力。',
-      trait: `你的选择横跨 ${uniqueDomains} 个领域，没有一个领域占据主导。你在具体情境中做的判断比抽象原则更能说明问题。`,
-    }
-  }
-
-  if (concentration >= 0.5) {
-    return {
-      style: '领域偏好型',
-      emoji: '🎯',
-      styleDesc: `你在「${DOMAIN_LABELS[topDomain[0]]}」领域的判断非常鲜明，你的选择在这个领域里高度一致。这说明你对这一块有清晰的价值排序——可能是因为你有丰富的亲身经历，已经磨练出了直觉。`,
-      trait: `在 10 道情景题中，你的选择 ${maxCount} 次指向了「${DOMAIN_LABELS[topDomain[0]]}」相关的理论。这个领域是你决策的"舒适区"。`,
-    }
-  }
-
-  if (concentration >= 0.35) {
-    return {
-      style: '价值观稳定型',
-      emoji: '⚓',
-      styleDesc: '你的选择在各个领域中展现出一定的一致性——你有一套相对稳定的内在价值体系，面对不同情景时，相似的原则会浮现出来。这是成熟的表现：你知道自己要什么，不容易被情境牵着走。',
-      trait: `你的核心倾向集中在「${DOMAIN_LABELS[topDomain[0]]}」领域，但不是压倒性的。你有一个主心骨，同时给其他领域留了空间。`,
-    }
+  for (const tag of tags) {
+    if (TAG_RISK_CONSERVATIVE.has(tag)) riskConservative++
+    if (TAG_RISK_AGGRESSIVE.has(tag)) riskAggressive++
+    if (TAG_THINK_RATIONAL.has(tag)) thinkRational++
+    if (TAG_THINK_INTUITIVE.has(tag)) thinkIntuitive++
+    if (TAG_SOCIAL_TRUSTING.has(tag)) socialTrusting++
+    if (TAG_SOCIAL_CAUTIOUS.has(tag)) socialCautious++
+    if (TAG_DECIDE_ANALYTICAL.has(tag)) decideAnalytical++
+    if (TAG_DECIDE_PRACTICAL.has(tag)) decidePractical++
   }
 
   return {
-    style: '灵活适应型',
-    emoji: '🌿',
-    styleDesc: '你在不同情景中的选择灵活多变，没有明显的领域偏好。你更可能依赖直觉和情境来做判断，而非事先设定的原则。你相信"具体情况具体分析"——这让你不容易被教条束缚。',
-    trait: '你的决策风格更接近"边走边看"——不同场景下不同的策略，这是一种灵活但难以被标签定义的方式。',
+    risk: riskAggressive > riskConservative ? 'aggressive' : 'conservative',
+    think: thinkIntuitive > thinkRational ? 'intuitive' : 'rational',
+    social: socialTrusting > socialCautious ? 'trusting' : 'cautious',
+    decide: decidePractical > decideAnalytical ? 'practical' : 'analytical',
+  }
+}
+
+interface ChosenTheory {
+  theoryContent: string
+  scenarioSituation: string
+  optionLabel: string
+}
+
+interface Portrait {
+  riskLabel: string
+  riskDesc: string
+  thinkLabel: string
+  thinkDesc: string
+  socialLabel: string
+  socialDesc: string
+  decideLabel: string
+  decideDesc: string
+  headline: string
+  chosenTheories: ChosenTheory[]
+}
+
+function buildPortrait(
+  dims: ProfileDimensions,
+  chosenTheories: ChosenTheory[],
+  total: number
+): Portrait {
+  const riskMap: Record<string, { label: string; desc: string }> = {
+    conservative: { label: '风险厌恶', desc: `${total} 道题中，你更倾向于保守安全的选择——守住已有的，不轻易押注不确定的事。手里有粮心里不慌。` },
+    aggressive: { label: '积极进取', desc: `${total} 道题中，你多次选择了更有风险但也更有回报的方向。机会来的时候你敢出手。` },
+    balanced: { label: '灵活平衡', desc: '你在保守和进取之间灵活切换——看情况来，不死板也不冒进。' },
+  }
+
+  const thinkMap: Record<string, { label: string; desc: string }> = {
+    rational: { label: '理性思考', desc: '你的选择倾向于数据分析、逻辑推理和冷静判断。情绪来了你能踩刹车。' },
+    intuitive: { label: '直觉驱动', desc: '你的选择更多依赖当下的感受和直觉——你相信身体和情绪会告诉你答案。' },
+  }
+
+  const socialMap: Record<string, { label: string; desc: string }> = {
+    trusting: { label: '信任前置', desc: '面对人际关系，你默认选择相信对方——先开门，等证据再关。' },
+    cautious: { label: '边界优先', desc: '你在关系中第一反应是保护自己的边界——不是冷漠，是懂得自我保护。' },
+  }
+
+  const decideMap: Record<string, { label: string; desc: string }> = {
+    analytical: { label: '深思熟虑', desc: '你做决定之前会反复想、想得很深——二阶效应、长远影响，你都会考虑。' },
+    practical: { label: '快速落地', desc: '你不喜欢绕来绕去，差不多够了就动手。完美的分析不如实际行动。' },
+  }
+
+  const headlines: Record<string, string> = {
+    'conservative-rational-cautious-analytical': '你像一个精算师——审慎、理性、重视边界、想得很深。',
+    'conservative-rational-cautious-practical': '你务实且清醒——知道风险在哪，也懂得适可而止。',
+    'conservative-rational-trusting-analytical': '你是温和的谋士——计算过风险，但仍愿意对人投信任票。',
+    'conservative-rational-trusting-practical': '你是在乎安全感的实践者——不冒险，不猜疑，做就完了。',
+    'conservative-intuitive-cautious-analytical': '你感性细腻但行为谨慎——直觉告诉你方向，理智帮你画边界。',
+    'conservative-intuitive-cautious-practical': '你靠直觉避开坑——感受到危险就撤退，不多纠结。',
+    'conservative-intuitive-trusting-analytical': '你心软但脑子清醒——对人敞开，对自己严格。',
+    'conservative-intuitive-trusting-practical': '你温暖且可靠——先信人，先做事，不多想。',
+    'aggressive-rational-cautious-analytical': '你胆大但算得精——敢冲，但不是盲冲。',
+    'aggressive-rational-cautious-practical': '你是冷面棋手——出手快，也算得快，但对人保持距离。',
+    'aggressive-rational-trusting-analytical': '你是有计划的冒险家——相信自己，也相信队友。',
+    'aggressive-rational-trusting-practical': '你是行动派领袖——冲就完了，带着大家一起。',
+    'aggressive-intuitive-cautious-analytical': '你内心狂野但外表冷静——冲动和克制在你体内并存。',
+    'aggressive-intuitive-cautious-practical': '你是独狼——信自己，快速出拳，和人保持距离。',
+    'aggressive-intuitive-trusting-analytical': '你是浪漫的赌徒——对人和机遇都充满热情，但不忘复盘。',
+    'aggressive-intuitive-trusting-practical': '你是天生的破局者——直觉推着你往前走，你从不回头看。',
+  }
+
+  const key = `${dims.risk}-${dims.think}-${dims.social}-${dims.decide}`
+  const headline = headlines[key] || '你的决策画像很独特——不同的维度的组合说明你不容易被单一标签概括。'
+
+  return {
+    riskLabel: riskMap[dims.risk]?.label || '',
+    riskDesc: riskMap[dims.risk]?.desc || '',
+    thinkLabel: thinkMap[dims.think]?.label || '',
+    thinkDesc: thinkMap[dims.think]?.desc || '',
+    socialLabel: socialMap[dims.social]?.label || '',
+    socialDesc: socialMap[dims.social]?.desc || '',
+    decideLabel: decideMap[dims.decide]?.label || '',
+    decideDesc: decideMap[dims.decide]?.desc || '',
+    headline,
+    chosenTheories,
   }
 }
 
@@ -73,40 +134,36 @@ export function FingerprintSummary() {
   const { state } = useAppContext()
   const { onboardingAnswers } = state.probing
 
-  const { evaluation, domainDistribution, totalAnswers } = useMemo(() => {
-    const answers = onboardingAnswers.filter((a) => a.phase === 'onboarding')
-    const total = answers.length
+  const portrait = useMemo(() => {
+    const answers = onboardingAnswers.filter((a) => a.phase === 'onboarding' && a.selectedOption !== 'skipped')
 
-    // Count how many times a theory in each domain was "followed" by user choices
-    const domainCounts = new Map<Domain, number>()
+    // Collect all tags from chosen theories
+    const allTags: string[] = []
+    const chosenTheories: ChosenTheory[] = []
+
     for (const answer of answers) {
-      // Find which scenario this answer belongs to
       const scenario = ONBOARDING_SCENARIOS.find((s) => s.id === answer.scenarioId)
-      if (scenario) {
-        const count = domainCounts.get(scenario.domain) || 0
-        domainCounts.set(scenario.domain, count + 1)
-      }
-    }
+      if (!scenario) continue
 
-    // Build domain distribution for display
-    const distribution: { domain: Domain; label: string; count: number; percent: number }[] = []
-    for (const [domain, count] of domainCounts) {
-      distribution.push({
-        domain,
-        label: DOMAIN_LABELS[domain],
-        count,
-        percent: total > 0 ? Math.round((count / total) * 100) : 0,
+      const theoryId = scenario.theoryMapping[answer.selectedOption]
+      if (!theoryId) continue
+
+      const theory = PRESET_THEORIES.find((t) => t.id === theoryId)
+      if (!theory) continue
+
+      allTags.push(...theory.tags)
+
+      const optionLabel = scenario.options.find((o) => o.value === answer.selectedOption)?.label || ''
+      chosenTheories.push({
+        theoryContent: theory.content,
+        scenarioSituation: scenario.situation,
+        optionLabel,
       })
     }
-    distribution.sort((a, b) => b.count - a.count)
 
-    const eval_ = buildEvaluation(domainCounts, total)
-
-    return { evaluation: eval_, domainDistribution: distribution, totalAnswers: total }
+    const dims = classifyTags(allTags)
+    return buildPortrait(dims, chosenTheories, answers.length)
   }, [onboardingAnswers])
-
-  // Only include the 5 domains covered by onboarding (finance, cognition, relationships, wisdom, decision)
-  const relevantDistribution = domainDistribution
 
   return (
     <div className="animate-fade-in space-y-8">
@@ -114,48 +171,68 @@ export function FingerprintSummary() {
         <span className="text-6xl">🧬</span>
         <h2 className="mt-4 text-2xl font-bold text-surface-800">你的决策指纹已生成</h2>
         <p className="mt-2 text-sm text-surface-500">
-          基于 {totalAnswers} 道情景探测，我们分析了你的决策偏好
+          基于你的情景选择，我们分析了 4 个维度的决策倾向
         </p>
       </div>
 
-      {/* Decision style evaluation */}
-      <div className="card rounded-2xl bg-white p-6">
-        <div className="mb-4 flex items-center gap-3">
-          <span className="text-2xl">{evaluation.emoji}</span>
-          <div>
-            <h3 className="text-lg font-bold text-surface-800">{evaluation.style}</h3>
-            <p className="text-xs text-surface-400">你的决策风格</p>
-          </div>
+      {/* Headline */}
+      <div className="card rounded-2xl bg-surface-800 p-6 text-white">
+        <p className="text-base leading-relaxed">{portrait.headline}</p>
+      </div>
+
+      {/* 4 Dimensions */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Risk */}
+        <div className="card rounded-2xl bg-white p-5">
+          <p className="mb-1 text-xs font-medium text-surface-400">风险态度</p>
+          <p className="text-base font-bold text-surface-800">{portrait.riskLabel}</p>
+          <p className="mt-2 text-xs leading-relaxed text-surface-500">{portrait.riskDesc}</p>
         </div>
-        <p className="text-sm leading-relaxed text-surface-600">{evaluation.styleDesc}</p>
-        <div className="mt-4 rounded-xl bg-surface-50 p-4">
-          <p className="text-sm leading-relaxed text-surface-600">{evaluation.trait}</p>
+
+        {/* Think */}
+        <div className="card rounded-2xl bg-white p-5">
+          <p className="mb-1 text-xs font-medium text-surface-400">思维模式</p>
+          <p className="text-base font-bold text-surface-800">{portrait.thinkLabel}</p>
+          <p className="mt-2 text-xs leading-relaxed text-surface-500">{portrait.thinkDesc}</p>
+        </div>
+
+        {/* Social */}
+        <div className="card rounded-2xl bg-white p-5">
+          <p className="mb-1 text-xs font-medium text-surface-400">社交倾向</p>
+          <p className="text-base font-bold text-surface-800">{portrait.socialLabel}</p>
+          <p className="mt-2 text-xs leading-relaxed text-surface-500">{portrait.socialDesc}</p>
+        </div>
+
+        {/* Decide */}
+        <div className="card rounded-2xl bg-white p-5">
+          <p className="mb-1 text-xs font-medium text-surface-400">决策节奏</p>
+          <p className="text-base font-bold text-surface-800">{portrait.decideLabel}</p>
+          <p className="mt-2 text-xs leading-relaxed text-surface-500">{portrait.decideDesc}</p>
         </div>
       </div>
 
-      {/* Domain distribution */}
-      {relevantDistribution.length > 0 && (
+      {/* Chosen theories */}
+      {portrait.chosenTheories.length > 0 && (
         <div className="card rounded-2xl bg-white p-6">
-          <h3 className="mb-4 text-sm font-semibold text-surface-600">各领域倾向分布</h3>
+          <h3 className="mb-3 text-sm font-semibold text-surface-600">
+            是什么让你做出了这些选择
+          </h3>
           <div className="space-y-3">
-            {relevantDistribution.map((d) => (
-              <div key={d.domain} className="flex items-center gap-3">
-                <span className="w-20 text-xs text-surface-500">{d.label}</span>
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-100">
-                  <div
-                    className="h-full rounded-full bg-primary-400 transition-all duration-700"
-                    style={{ width: `${Math.max(d.percent, 5)}%` }}
-                  />
+            {portrait.chosenTheories.map((ct, i) => (
+              <div key={i} className="rounded-xl border border-surface-100 bg-surface-50/50 p-4">
+                <p className="text-xs text-surface-400">{ct.scenarioSituation}</p>
+                <div className="mt-2 flex items-start gap-2">
+                  <span className="mt-0.5 shrink-0 rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-600">
+                    你选了
+                  </span>
+                  <span className="text-xs text-surface-600">{ct.optionLabel}</span>
                 </div>
-                <span className="w-12 text-right text-xs font-medium text-surface-700 tabular-nums">
-                  {d.count} 次
-                </span>
+                <p className="mt-2 text-xs leading-relaxed text-surface-500">
+                  这揭示了：{ct.theoryContent}
+                </p>
               </div>
             ))}
           </div>
-          <p className="mt-2 text-xs text-surface-400">
-            你的 10 次选择在各领域的分布。条越长说明你在该领域的倾向越明显。
-          </p>
         </div>
       )}
 

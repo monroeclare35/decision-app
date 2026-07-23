@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAppContext } from '../hooks/useAppContext'
-import { useDecisionSubmit } from '../hooks/useDecisionSubmit'
 import { PageHeader } from '../components/layout/PageHeader'
 import { CategorySelector } from '../components/decision/CategorySelector'
 import { BeliefsPreview } from '../components/decision/BeliefsPreview'
-import { LoadingSpinner } from '../components/shared/LoadingSpinner'
 import type { Category } from '../types'
 import { MAX_DECISION_LENGTH } from '../constants/config'
 
@@ -21,7 +19,6 @@ export function DecidePage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { state, showToast } = useAppContext()
-  const { submitDilemma, isSubmitting, error } = useDecisionSubmit()
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState<Category>('daily')
 
@@ -37,19 +34,16 @@ export function DecidePage() {
   const hasApiKey = !!state.settings.apiKey
   const charCount = description.length
 
-  const handleSubmit = async () => {
-    if (!description.trim()) return
-    const success = await submitDilemma(description, category)
-    if (success) {
-      navigate('/probing')
-    }
+  const handleSubmit = () => {
+    if (!description.trim() || !hasApiKey) return
+    navigate('/probing', { state: { dilemma: description, category } })
   }
 
   return (
     <div className="animate-fade-in">
       <PageHeader
         title="拿不定主意？"
-        subtitle="把让你纠结的事写下来，AI 根据你的偏好给你梳理思路。大概需要 15-30 秒。"
+        subtitle="把让你纠结的事写下来，回答几道探测题，AI 帮你深挖决策倾向。"
         icon="🎯"
       />
 
@@ -103,28 +97,14 @@ export function DecidePage() {
           </div>
         </div>
 
-        {/* Error */}
-        {error && (
-          <div className="rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</div>
-        )}
-
         {/* Submit */}
         <button
           onClick={handleSubmit}
-          disabled={isSubmitting || !description.trim()}
+          disabled={!description.trim()}
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-surface-800 py-4 text-base font-medium text-white transition-all hover:bg-surface-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {isSubmitting ? (
-            <>
-              <LoadingSpinner size="sm" />
-              <span>正在分析你的困境并生成探测场景...</span>
-            </>
-          ) : (
-            <>
-              <span>🧿</span>
-              <span>帮我理一理</span>
-            </>
-          )}
+          <span>🧿</span>
+          <span>帮我理一理</span>
         </button>
       </div>
     </div>

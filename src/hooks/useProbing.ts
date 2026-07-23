@@ -43,7 +43,7 @@ export function useProbing() {
         scenarioId: currentScenario.id,
         selectedOption: optionValue,
         theoryId: currentScenario.theoryId,
-        phase: probeState.phase,
+        phase: probeState.phase as 'probing' | 'followup',
         timestamp: new Date().toISOString(),
       }
       recordScenarioAnswer(answer)
@@ -73,7 +73,7 @@ export function useProbing() {
       scenarioId: currentScenario.id,
       selectedOption: 'skipped',
       theoryId: '',
-      phase: probeState.phase,
+      phase: probeState.phase as 'probing' | 'followup',
       timestamp: new Date().toISOString(),
     }
     recordScenarioAnswer(answer)
