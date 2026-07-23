@@ -2,17 +2,21 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppContext } from '../hooks/useAppContext'
 
-// Terminal-style cat: each line is a "frame" of the cat appearing.
-// Uses a CSS animation to simulate a code-render effect.
+// Each frame is a line of the "boot sequence".
+// The cat ASCII art renders like a system initializing.
 const CAT_FRAMES = [
-  '> loading...',
+  '> 慧咪 v0.3.0',
   '> initializing...',
   '> ',
-  '>   /\\_/\\',
-  '>  ( o.o )',
-  '>   > ^ <',
+  '>      /\\___/\\',
+  '>     (  o   o  )',
+  '>     (  = ^ =  )',
+  '>      (  ---  )',
+  '>       |     |',
+  '>      (_______ )',
   '> ',
-  '> 喵。',
+  '> system ready.',
+  '> 喵 ~',
 ]
 
 export function LandingPage() {
@@ -21,63 +25,60 @@ export function LandingPage() {
   const hasStarted = profile && Object.keys(state.theories.userRatings).length > 0
   const completed = profile?.completedOnboarding
 
-  // Typewriter / code-render animation
   const [visibleLines, setVisibleLines] = useState(0)
   const [animationDone, setAnimationDone] = useState(false)
 
   useEffect(() => {
     if (visibleLines >= CAT_FRAMES.length) {
-      setAnimationDone(true)
-      return
+      const t = setTimeout(() => setAnimationDone(true), 400)
+      return () => clearTimeout(t)
     }
-    const delay = visibleLines === 2 ? 600 : 300
+    const delay = visibleLines < 3 ? 400 : 180
     const timer = setTimeout(() => setVisibleLines((v) => v + 1), delay)
     return () => clearTimeout(timer)
   }, [visibleLines])
 
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center px-4 text-center">
-      {/* Hero — code-style cat */}
+      {/* Cat boot sequence */}
       <div className="animate-fade-in">
         {/* Terminal window */}
         <div
-          className={`mx-auto mb-2 w-48 overflow-hidden rounded-xl border border-surface-200 bg-surface-800 text-left transition-all duration-700 ${
-            animationDone ? 'shadow-lg' : ''
+          className={`mx-auto w-72 overflow-hidden rounded-2xl border border-surface-300/50 bg-[#1a1a2e] text-left shadow-2xl transition-all duration-1000 ${
+            animationDone ? 'shadow-[0_0_60px_rgba(168,85,247,0.15)]' : ''
           }`}
         >
           {/* Title bar */}
-          <div className="flex items-center gap-1.5 border-b border-surface-700 px-3 py-2">
-            <span className="h-2 w-2 rounded-full bg-red-400" />
-            <span className="h-2 w-2 rounded-full bg-yellow-400" />
-            <span className="h-2 w-2 rounded-full bg-green-400" />
-            <span className="ml-2 text-[10px] text-surface-500">meow ~</span>
+          <div className="flex items-center gap-2 border-b border-white/5 px-4 py-2.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+            <span className="ml-2 text-[11px] text-white/30 font-mono">meow ~</span>
           </div>
-          {/* Terminal content */}
-          <div className="px-3 py-3 font-mono text-xs leading-relaxed text-green-400">
+          {/* Terminal body */}
+          <div className="px-5 py-4 font-mono text-sm leading-[1.7] text-[#50fa7b]">
             {CAT_FRAMES.slice(0, visibleLines).map((line, i) => (
-              <div key={i}>{line}</div>
+              <div key={i} className="whitespace-pre">{line}</div>
             ))}
             {!animationDone && (
-              <span className="inline-block h-4 w-2 animate-pulse bg-green-400" />
+              <span className="inline-block h-[1.2em] w-2.5 animate-pulse bg-[#50fa7b] align-middle" />
             )}
           </div>
         </div>
 
-        {/* App name */}
-        <h1
-          className={`mt-6 text-3xl font-bold leading-tight text-surface-800 transition-all duration-1000 ${
-            animationDone ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        {/* App name & tagline — fade in after cat */}
+        <div
+          className={`transition-all duration-1000 ${
+            animationDone ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
-          慧咪
-        </h1>
-        <p
-          className={`mt-3 max-w-sm text-sm leading-relaxed text-surface-500 transition-all delay-300 duration-1000 ${
-            animationDone ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
-        >
-          人，咪儿和你一起想
-        </p>
+          <h1 className="mt-8 text-3xl font-bold tracking-wide text-surface-800">
+            慧咪
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-surface-500">
+            人，咪儿和你一起想
+          </p>
+        </div>
       </div>
 
       {/* Features */}

@@ -16,7 +16,7 @@ export function Navbar() {
     <nav className="sticky top-0 z-40 border-b border-surface-200/50 bg-white/80 backdrop-blur-xl">
       <div className="flex items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2 text-lg font-bold tracking-tight text-surface-800">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-surface-800 text-sm">🧿</span>
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-surface-800 text-sm">🐱</span>
           <span>慧咪</span>
         </Link>
       </div>
