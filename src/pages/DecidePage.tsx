@@ -18,9 +18,20 @@ const PLACEHOLDERS: Record<Category, string> = {
 export function DecidePage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { state, showToast } = useAppContext()
-  const [description, setDescription] = useState('')
-  const [category, setCategory] = useState<Category>('daily')
+  const { state, showToast, dispatch } = useAppContext()
+
+  // Restore draft on mount
+  const savedDraft = state.decisions.currentDraft
+  const [description, setDescription] = useState(savedDraft?.description || '')
+  const [category, setCategory] = useState<Category>(savedDraft?.category || 'daily')
+
+  // Save draft on every change
+  useEffect(() => {
+    dispatch({
+      type: 'SET_DRAFT',
+      payload: description.trim() ? { description, category } : null,
+    })
+  }, [description, category, dispatch])
 
   useEffect(() => {
     if ((location.state as { fromResult?: boolean })?.fromResult) {
@@ -36,6 +47,7 @@ export function DecidePage() {
 
   const handleSubmit = () => {
     if (!description.trim() || !hasApiKey) return
+    dispatch({ type: 'SET_DRAFT', payload: null })
     navigate('/probing', { state: { dilemma: description, category } })
   }
 
@@ -43,7 +55,7 @@ export function DecidePage() {
     <div className="animate-fade-in">
       <PageHeader
         title="拿不定主意？"
-        subtitle="把让你纠结的事写下来，回答几道探测题，AI 帮你深挖决策倾向。"
+        subtitle="人，咪儿和你一起想"
         icon="🎯"
       />
 

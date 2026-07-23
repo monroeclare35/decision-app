@@ -196,7 +196,7 @@ export function SettingsPage() {
         <div className="card rounded-xl bg-white p-5">
           <h3 className="text-sm font-semibold text-surface-700">关于</h3>
           <p className="mt-1 text-xs text-surface-500">
-            决策助手 v1.0 — 基于你的个人偏好，用 AI 帮你做更好的决策。
+            慧咪 v1.0 — 基于你的个人偏好，用 AI 帮你做更好的决策。
           </p>
           <p className="mt-2 text-xs text-surface-400">
             所有数据保存在你的浏览器中。我们不会收集或上传任何个人信息。

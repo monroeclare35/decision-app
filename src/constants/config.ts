@@ -1,5 +1,5 @@
-export const APP_NAME = '决策助手'
-export const APP_DESCRIPTION = '找到属于你的答案'
+export const APP_NAME = '慧咪'
+export const APP_DESCRIPTION = '人，咪儿和你一起想'
 
 export const CLAUDE_MODEL = 'claude-sonnet-4-20250514'
 export const MAX_DECISION_LENGTH = 500
