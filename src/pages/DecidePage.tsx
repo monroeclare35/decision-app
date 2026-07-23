@@ -115,7 +115,7 @@ export function DecidePage() {
           disabled={!description.trim()}
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-surface-800 py-4 text-base font-medium text-white transition-all hover:bg-surface-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
         >
-          <span>🧿</span>
+          <span>🐱</span>
           <span>帮我理一理</span>
         </button>
       </div>

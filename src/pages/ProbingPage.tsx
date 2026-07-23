@@ -8,12 +8,20 @@ import { ScenarioCard } from '../components/onboarding/ScenarioCard'
 import { PROBE_SCENARIO_COUNT } from '../constants/config'
 import type { Category, DecisionProbeState } from '../types'
 
-// Loading stages for the progress bar
+// Loading stages — labels for the progress bar
 const LOADING_STAGES = [
   { label: '分析你的困境…', pct: 30 },
   { label: '匹配相关理论…', pct: 60 },
   { label: '生成探测情景…', pct: 90 },
 ]
+
+const LOADING_DURATION = 3000 // target 3 seconds for smooth bar fill
+
+function getStage(pct: number): number {
+  if (pct >= 60) return 2
+  if (pct >= 30) return 1
+  return 0
+}
 
 export function ProbingPage() {
   const navigate = useNavigate()
@@ -37,12 +45,11 @@ export function ProbingPage() {
   const hasIncoming = !!incoming?.dilemma
   const generatingRef = useRef(false)
 
-  // Loading state for initial probe generation
   const [isGeneratingProbes, setIsGeneratingProbes] = useState(false)
   const [loadingStage, setLoadingStage] = useState(0)
   const [loadingBarPct, setLoadingBarPct] = useState(0)
 
-  // Generate probe scenarios on mount if this is a new submission
+  // Generate probe scenarios on mount — AI call + progress bar run in parallel
   useEffect(() => {
     if (!hasIncoming || generatingRef.current) return
     generatingRef.current = true
@@ -55,31 +62,42 @@ export function ProbingPage() {
       }
 
       setIsGeneratingProbes(true)
+      setLoadingBarPct(0)
+      setLoadingStage(0)
 
-      // Animate loading stages
-      for (let i = 0; i < LOADING_STAGES.length; i++) {
-        setLoadingStage(i)
-        setLoadingBarPct(LOADING_STAGES[i].pct)
-        await new Promise((r) => setTimeout(r, 600 + Math.random() * 400))
-      }
+      // Build theories summary first
+      const theories = state.theories.library
+      const theoriesSummary = theories
+        .slice(0, 50)
+        .map((t) => `[${t.id}] ${t.content} (领域: ${t.domain})`)
+        .join('\n')
+
+      // Start AI call immediately
+      const aiPromise = generateProbeScenarios({
+        config: { provider, apiKey },
+        dilemma: incoming.dilemma,
+        category: incoming.category || 'daily',
+        theoriesSummary,
+        count: PROBE_SCENARIO_COUNT,
+      })
+
+      // Run smooth progress bar in parallel
+      const startTime = Date.now()
+      const tickInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime
+        const smoothPct = Math.min(90, Math.round((elapsed / LOADING_DURATION) * 90))
+        setLoadingBarPct(smoothPct)
+        setLoadingStage(getStage(smoothPct))
+      }, 50)
 
       try {
-        const theories = state.theories.library
-        const theoriesSummary = theories
-          .slice(0, 50)
-          .map((t) => `[${t.id}] ${t.content} (领域: ${t.domain})`)
-          .join('\n')
+        const probeScenarios = await aiPromise
+        clearInterval(tickInterval)
 
-        const probeScenarios = await generateProbeScenarios({
-          config: { provider, apiKey },
-          dilemma: incoming.dilemma,
-          category: incoming.category || 'daily',
-          theoriesSummary,
-          count: PROBE_SCENARIO_COUNT,
-        })
-
+        // Complete the bar
         setLoadingBarPct(100)
-        await new Promise((r) => setTimeout(r, 300))
+        setLoadingStage(2)
+        await new Promise((r) => setTimeout(r, 200))
 
         // Clear location state so refresh doesn't re-trigger
         window.history.replaceState({}, '')
@@ -125,24 +143,30 @@ export function ProbingPage() {
   }, [probeState?.phase])
 
   // --- Loading: initial probe generation ---
+  const barWaiting = loadingBarPct >= 90 && loadingBarPct < 100
   if (isGeneratingProbes) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center px-6">
-        <span className="text-4xl">🧿</span>
+        <span className="text-5xl">🐱</span>
         <h3 className="mt-4 text-lg font-semibold text-surface-700">
           {LOADING_STAGES[loadingStage]?.label}
         </h3>
 
-        {/* Animated progress bar */}
-        <div className="mt-6 h-2 w-64 overflow-hidden rounded-full bg-surface-100">
+        {/* Progress bar — smooth, with shimmer when waiting */}
+        <div className="relative mt-6 h-2 w-64 overflow-hidden rounded-full bg-surface-100">
           <div
-            className="h-full rounded-full bg-primary-400 transition-all duration-700 ease-out"
+            className={`h-full rounded-full transition-[width] duration-100 ease-linear ${
+              barWaiting ? 'bg-primary-400 animate-pulse' : 'bg-primary-400'
+            }`}
             style={{ width: `${loadingBarPct}%` }}
           />
+          {barWaiting && (
+            <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          )}
         </div>
 
         <p className="mt-3 text-xs text-surface-400">
-          正在为你定制探测情景，稍等几秒
+          {barWaiting ? 'AI 正在生成情景，稍等…' : '正在为你定制探测情景…'}
         </p>
       </div>
     )
