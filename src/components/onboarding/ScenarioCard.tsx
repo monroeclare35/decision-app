@@ -8,11 +8,12 @@ interface ScenarioCardProps {
   options: ScenarioOption[]
   selectedOption?: string | null
   onSelect: (value: string) => void
-  revealedContent?: string | null   // shown after selection (the theory reveal)
+  revealedContent?: string | null
+  theoryName?: string              // theory name for probing mode
   domain?: Domain
   tags?: string[]
-  showResult?: boolean              // if true, shows reveal immediately
-  readonly?: boolean                // for displaying past answers
+  showResult?: boolean
+  readonly?: boolean
 }
 
 export function ScenarioCard({
@@ -21,6 +22,7 @@ export function ScenarioCard({
   selectedOption,
   onSelect,
   revealedContent,
+  theoryName,
   domain,
   tags,
   showResult = false,
@@ -66,8 +68,17 @@ export function ScenarioCard({
 
   return (
     <div className="animate-fade-in">
-      {/* Domain tag */}
-      {domain && (
+      {/* Theory name badge — for probing mode */}
+      {theoryName && !isRevealed && (
+        <div className="mb-3 text-center">
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-600">
+            📌 {theoryName}
+          </span>
+        </div>
+      )}
+
+      {/* Domain tag — for onboarding mode */}
+      {domain && !theoryName && (
         <div className="mb-4 text-center">
           <span className="inline-flex items-center gap-1 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-600">
             {DOMAIN_LABELS[domain]}

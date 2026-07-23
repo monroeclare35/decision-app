@@ -6,22 +6,17 @@ import { useDecisionSubmit } from '../hooks/useDecisionSubmit'
 import { generateProbeScenarios } from '../services/ai'
 import { ScenarioCard } from '../components/onboarding/ScenarioCard'
 import { PROBE_SCENARIO_COUNT } from '../constants/config'
+import { PRESET_THEORIES } from '../data/theories'
 import type { Category, DecisionProbeState } from '../types'
 
-// Loading stages — labels for the progress bar
+// Loading stages — 3 phases, each 2.5 seconds
 const LOADING_STAGES = [
-  { label: '分析你的困境…', pct: 30 },
-  { label: '匹配相关理论…', pct: 60 },
-  { label: '生成探测情景…', pct: 90 },
+  { label: '分析你的困境…', startPct: 0, endPct: 33 },
+  { label: '匹配相关理论…', startPct: 33, endPct: 66 },
+  { label: '情景化设问…', startPct: 66, endPct: 90 },
 ]
-
-const LOADING_DURATION = 3000 // target 3 seconds for smooth bar fill
-
-function getStage(pct: number): number {
-  if (pct >= 60) return 2
-  if (pct >= 30) return 1
-  return 0
-}
+const STAGE_DURATION = 2500 // each stage 2.5s
+const TOTAL_DURATION = STAGE_DURATION * 3 // 7.5s total
 
 export function ProbingPage() {
   const navigate = useNavigate()
@@ -81,14 +76,20 @@ export function ProbingPage() {
         count: PROBE_SCENARIO_COUNT,
       })
 
-      // Run smooth progress bar in parallel
+      // Run staged progress bar in parallel — each stage 2.5s
       const startTime = Date.now()
       const tickInterval = setInterval(() => {
         const elapsed = Date.now() - startTime
-        const smoothPct = Math.min(90, Math.round((elapsed / LOADING_DURATION) * 90))
-        setLoadingBarPct(smoothPct)
-        setLoadingStage(getStage(smoothPct))
-      }, 50)
+        // Which stage are we in?
+        const stageIndex = Math.min(2, Math.floor(elapsed / STAGE_DURATION))
+        const stage = LOADING_STAGES[stageIndex]
+        const stageElapsed = elapsed - stageIndex * STAGE_DURATION
+        // Linear fill within the stage
+        const stageProgress = Math.min(1, stageElapsed / STAGE_DURATION)
+        const pct = Math.round(stage.startPct + (stage.endPct - stage.startPct) * stageProgress)
+        setLoadingBarPct(Math.min(90, pct))
+        setLoadingStage(stageIndex)
+      }, 60)
 
       try {
         const probeScenarios = await aiPromise
@@ -263,6 +264,11 @@ export function ProbingPage() {
             situation={currentScenario.situation}
             options={currentScenario.options}
             onSelect={answerCurrent}
+            theoryName={
+              probeState.phase === 'probing'
+                ? PRESET_THEORIES.find((t) => t.id === currentScenario.theoryId)?.name
+                : undefined
+            }
           />
         </div>
       ) : (
