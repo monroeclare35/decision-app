@@ -37,9 +37,6 @@ export function TheoryCard({ theory, currentRating, onRate, onSkip }: TheoryCard
         <span className="inline-flex items-center gap-1 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-600">
           {DOMAIN_LABELS[theory.domain]}
         </span>
-        <span className="ml-2 text-xs text-surface-400">
-          {theory.source === 'preset' ? '预设' : theory.source === 'ai' ? 'AI生成' : '自定义'}
-        </span>
       </div>
 
       {/* Theory content */}

@@ -48,7 +48,7 @@ export const DOMAIN_ICONS: Record<Domain, string> = {
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   love: '感情',
-  money: '钱',
+  money: '消费/投资',
   study_work: '学业/事业',
   social: '人际关系',
   daily: '日常困扰',

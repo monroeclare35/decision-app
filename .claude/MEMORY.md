@@ -1,0 +1,2 @@
+- [项目概览](memory/project-overview.md) — 决策助手 App 架构、技术栈、功能模块
+- [部署工作流](memory/deploy-workflow.md) — build → push GitHub → Vercel 自动部署
