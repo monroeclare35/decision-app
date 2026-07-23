@@ -1,4 +1,4 @@
-import type { AppState, Theory, Decision, DecisionResult, DecisionDraft, UserProfile, ToastMessage, KnowledgeItem } from '../types'
+import type { AppState, Theory, Decision, DecisionResult, DecisionDraft, UserProfile, ToastMessage, KnowledgeItem, ScenarioAnswer, DecisionProbeState } from '../types'
 
 export type AppAction =
   // User
@@ -25,6 +25,12 @@ export type AppAction =
   | { type: 'ADD_KNOWLEDGE'; payload: KnowledgeItem }
   | { type: 'REMOVE_KNOWLEDGE'; payload: string }
   | { type: 'LOAD_KNOWLEDGE'; payload: KnowledgeItem[] }
+  // Probing
+  | { type: 'SET_PROBE_STATE'; payload: DecisionProbeState | null }
+  | { type: 'RECORD_SCENARIO_ANSWER'; payload: ScenarioAnswer }
+  | { type: 'ADVANCE_PROBE_INDEX'; payload: number }
+  | { type: 'CLEAR_PROBE_STATE' }
+  | { type: 'LOAD_ONBOARDING_ANSWERS'; payload: ScenarioAnswer[] }
   // UI
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
@@ -55,6 +61,10 @@ export const initialState: AppState = {
     error: null,
     onboardingIndex: 0,
     toast: null,
+  },
+  probing: {
+    currentState: null,
+    onboardingAnswers: [],
   },
 }
 
@@ -225,6 +235,62 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         settings: { ...state.settings, provider: action.payload },
+      }
+
+    // --- Probing ---
+    case 'SET_PROBE_STATE':
+      return {
+        ...state,
+        probing: { ...state.probing, currentState: action.payload },
+      }
+
+    case 'RECORD_SCENARIO_ANSWER': {
+      const answer = action.payload
+      if (answer.phase === 'onboarding') {
+        return {
+          ...state,
+          probing: {
+            ...state.probing,
+            onboardingAnswers: [...state.probing.onboardingAnswers, answer],
+          },
+        }
+      }
+      if (!state.probing.currentState) return state
+      return {
+        ...state,
+        probing: {
+          ...state.probing,
+          currentState: {
+            ...state.probing.currentState,
+            scenarioAnswers: [...state.probing.currentState.scenarioAnswers, answer],
+          },
+        },
+      }
+    }
+
+    case 'ADVANCE_PROBE_INDEX':
+      if (!state.probing.currentState) return state
+      return {
+        ...state,
+        probing: {
+          ...state.probing,
+          currentState: {
+            ...state.probing.currentState,
+            currentIndex: action.payload,
+          },
+        },
+      }
+
+    case 'CLEAR_PROBE_STATE':
+      return {
+        ...state,
+        probing: { ...state.probing, currentState: null },
+      }
+
+    case 'LOAD_ONBOARDING_ANSWERS':
+      return {
+        ...state,
+        probing: { ...state.probing, onboardingAnswers: action.payload },
       }
 
     // --- UI ---

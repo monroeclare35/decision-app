@@ -1,4 +1,4 @@
-import type { Theory } from '../types'
+import type { Theory, OnboardingScenario } from '../types'
 
 export const PRESET_THEORIES: Theory[] = [
   // ============================================================
@@ -314,18 +314,187 @@ export const PRESET_THEORIES: Theory[] = [
 
 export const TOTAL_THEORIES = PRESET_THEORIES.length // 252
 
-// 10 representative onboarding questions — 2 from each of 5 core areas
-export const ONBOARDING_THEORIES: Theory[] = [
-  PRESET_THEORIES.find((t) => t.id === 'fin_01')!,  // 分散投资
-  PRESET_THEORIES.find((t) => t.id === 'fin_04')!,  // 钱是挣出来的
-  PRESET_THEORIES.find((t) => t.id === 'cog_01')!,  // 沉没成本
-  PRESET_THEORIES.find((t) => t.id === 'cog_02')!,  // 确认偏误
-  PRESET_THEORIES.find((t) => t.id === 'rel_01')!,  // 信任前置
-  PRESET_THEORIES.find((t) => t.id === 'rel_03')!,  // 边界感
-  PRESET_THEORIES.find((t) => t.id === 'wis_01')!,  // 三思后行
-  PRESET_THEORIES.find((t) => t.id === 'wis_02')!,  // 机不可失
-  PRESET_THEORIES.find((t) => t.id === 'dec_03')!,  // 奥卡姆剃刀
-  PRESET_THEORIES.find((t) => t.id === 'dec_01')!,  // 二阶思维
+// 10 hand-written onboarding scenarios — concrete situations that reveal decision tendencies.
+// Each scenario intentionally pits two theories against each other, so the user's choice
+// surfaces which principle they actually follow in practice (not which one they claim to follow).
+export const ONBOARDING_SCENARIOS: OnboardingScenario[] = [
+  // ===== Finance (2) =====
+  {
+    id: 'onb_001',
+    situation: '你手头有5万闲钱，朋友拉你投一个项目——他说稳赚，但你其实不太懂这个行业。你会怎么处理？',
+    options: [
+      { label: '拿3万投，留2万存着', value: 'split' },
+      { label: '全部存定期，不碰不懂的', value: 'safe' },
+      { label: '5万全投，机会难得', value: 'all_in' },
+    ],
+    theoryMapping: { split: 'fin_01', safe: 'fin_05', all_in: 'fin_04' },
+    revealedContent: {
+      split: '你选了分散——这说明你认同"别把鸡蛋搁一个篮子里"。你想搏收益，但给自己留了退路。',
+      safe: '你选了全存——你是"现金为王"的信徒。手里有粮心里不慌，不熟不做。保守本身也是一种策略。',
+      all_in: '你选了全投——你更接近"钱是挣出来的"思维。你愿意为机会下注，风险偏好比大多数人高。',
+    },
+    domain: 'finance',
+    tags: ['投资', '风险', '分散'],
+  },
+  {
+    id: 'onb_002',
+    situation: '你每天花20块买咖啡外卖，一个月大概600。朋友说你一年花七千多买咖啡太浪费了，你觉得呢？',
+    options: [
+      { label: '他说得对，明天开始自己泡', value: 'cut' },
+      { label: '这钱是我的快乐，不省', value: 'keep' },
+      { label: '减少外卖频率，一周买三次', value: 'balance' },
+    ],
+    theoryMapping: { cut: 'fin_03', keep: 'fin_18', balance: 'fin_01' },
+    revealedContent: {
+      cut: '你倾向于省钱——"省一分就是挣一分"。小钱加起来确实吓人。',
+      keep: '你更看重体验——每天一杯咖啡的快乐，比一年省七千更重要。体验比物质更值。',
+      balance: '你取了个中间值——不完全放弃也不完全放纵，这种节奏可能最可持续。',
+    },
+    domain: 'finance',
+    tags: ['消费', '习惯', '体验'],
+  },
+
+  // ===== Cognition (2) =====
+  {
+    id: 'onb_003',
+    situation: '你花300买了张演唱会票，当天发烧38°C，浑身酸痛。朋友劝你别去了，但票都买了。你去还是不去？',
+    options: [
+      { label: '坚持去，300块不能白花', value: 'go' },
+      { label: '不去，身体要紧，300就当丢了', value: 'rest' },
+    ],
+    theoryMapping: { go: 'cog_10', rest: 'cog_01' },
+    revealedContent: {
+      go: '你选了去——这更接近"损失厌恶"：丢一百块的难受要赚两百才能补回来。你以为自己认同"沉没成本不是成本"，但身体很诚实。',
+      rest: '你选了休息——你真正做到了"沉没成本不是成本"。已经花掉的钱不左右你下一步的选择。这比大多数人强。',
+    },
+    domain: 'cognition',
+    tags: ['沉没成本', '损失厌恶', '止损'],
+  },
+  {
+    id: 'onb_004',
+    situation: '你在网上看到一个观点和你立场一致的文章，转发前你会先核实里面引用的数据和来源吗？',
+    options: [
+      { label: '会核实，不确定的不转', value: 'verify' },
+      { label: '大概看一眼，没啥大问题就转', value: 'skim' },
+      { label: '写得有道理就直接转', value: 'trust' },
+    ],
+    theoryMapping: { verify: 'cog_02', skim: 'cog_01', trust: 'cog_10' },
+    revealedContent: {
+      verify: '你在对抗"确认偏误"——人天然爱看支持自己观点的东西，但你会主动去找反例。',
+      skim: '你有一点核实意识，但"确认偏误"还是会悄悄起作用——你更愿意相信你本来就认同的东西。',
+      trust: '你倾向于相信直觉——但这也意味着你可能落入了"确认偏误"的陷阱：人天然爱看支持自己的证据。',
+    },
+    domain: 'cognition',
+    tags: ['确认偏误', '批判思维', '信息'],
+  },
+
+  // ===== Relationships (2) =====
+  {
+    id: 'onb_005',
+    situation: '你刚入职新公司一周，同事A跟你说同事B的闲话，还说B在背后议论过你。你会怎么做？',
+    options: [
+      { label: '先观察，不站队，自己判断', value: 'observe' },
+      { label: '相信A说的，以后对B留个心眼', value: 'believe_a' },
+      { label: '直接找B问清楚', value: 'confront' },
+    ],
+    theoryMapping: { observe: 'rel_01', believe_a: 'rel_03', confront: 'rel_01' },
+    revealedContent: {
+      observe: '你选择了"信任前置"——先假设大家都是善意的，用时间来判断。不带戒备入场，关系才不会一开始就歪。',
+      believe_a: '你对新关系的默认姿态是谨慎——这能保护你，但也可能让你在还没看清全局时就站了队。边界感很重要，但信任也很珍贵。',
+      confront: '你选择了直接沟通——这也是一种信任，你相信当面说清楚比背后猜测好。不过不是所有人都适应这种直球。',
+    },
+    domain: 'relationships',
+    tags: ['信任', '职场', '边界'],
+  },
+  {
+    id: 'onb_006',
+    situation: '好友深夜打电话来，哭着说分手了要你陪。你明早8点有个重要的汇报。你会？',
+    options: [
+      { label: '穿上衣服出门，朋友需要我', value: 'go' },
+      { label: '在电话里聊半小时，然后说明天再见面', value: 'call' },
+      { label: '说明情况，约明天中午好好聊', value: 'tomorrow' },
+    ],
+    theoryMapping: { go: 'rel_01', call: 'rel_03', tomorrow: 'rel_03' },
+    revealedContent: {
+      go: '你把朋友放在了第一位——这是一个温暖的选择。但长期来看，"边界感是健康关系的基础"，不说"不"的人最后往往最累。',
+      call: '你在陪伴和自保之间找了个平衡——给了当下需要的安慰，也没把自己的正事搭进去。',
+      tomorrow: '你选择了守住边界——这不是冷漠。好的关系不需要你每次都牺牲自己来证明。',
+    },
+    domain: 'relationships',
+    tags: ['边界', '友谊', '取舍'],
+  },
+
+  // ===== Wisdom (2) =====
+  {
+    id: 'onb_007',
+    situation: '你和对象因为一件事吵得很凶，对方说了很伤人的话。你气得想直接说分手。你会怎么办？',
+    options: [
+      { label: '先闭嘴，出去走半小时再回来', value: 'pause' },
+      { label: '直接说分手，话都说到这份上了', value: 'breakup' },
+      { label: '怼回去，凭什么只我忍着', value: 'fight' },
+    ],
+    theoryMapping: { pause: 'wis_01', breakup: 'wis_02', fight: 'wis_02' },
+    revealedContent: {
+      pause: '你选择了"三思而后行"——气头上做的决定十个有九个会后悔。给自己一晚上的冷静期，明天再看这段关系。',
+      breakup: '你倾向于当下决断——"机不可失"，有些话说出去了就收不回来。但如果你事后后悔，"三思而后行"那个声音可能会在你心里响起。',
+      fight: '你选了当场还击——情绪来了不吐不快。但记住"三思而后行"：气头上做的事，冷静后可能要花十倍力气弥补。',
+    },
+    domain: 'wisdom',
+    tags: ['冲动', '情绪', '关系'],
+  },
+  {
+    id: 'onb_008',
+    situation: '公司内部有个跨部门的机会，你挺感兴趣的但没相关经验。申请的截止日期是今天下班前。你会？',
+    options: [
+      { label: '不管了，先提交申请再说', value: 'apply' },
+      { label: '这次算了，准备充分等下次', value: 'wait' },
+      { label: '花两小时快速准备，尽力而为', value: 'rush' },
+    ],
+    theoryMapping: { apply: 'wis_02', wait: 'wis_01', rush: 'wis_02' },
+    revealedContent: {
+      apply: '你选择了"机不可失"——有些窗口就那么一瞬间。你没准备好，但你敢上。机会偏爱出手的人。',
+      wait: '你选择了稳——"三思而后行"。但反过来问问自己：等你准备好的那天，这个窗口还会开着吗？',
+      rush: '你取了个折中——两小时内能准备多少算多少，剩下的靠临场发挥。这其实是另一种"机不可失"——你出手了，只是带上了能带的武器。',
+    },
+    domain: 'wisdom',
+    tags: ['机会', '准备', '风险'],
+  },
+
+  // ===== Decision (2) =====
+  {
+    id: 'onb_009',
+    situation: '你的手机经常卡顿、电池半天就没了。朋友说该换了，你开始看新手机——但越看越纠结：内存要多大？摄像头哪个好？性价比还是旗舰？选了一个星期还没定。',
+    options: [
+      { label: '列出最在意的三个要求，满足就下单', value: 'filter' },
+      { label: '继续研究，总有一款完美的', value: 'research' },
+      { label: '直接买朋友推荐的，他懂', value: 'delegate' },
+    ],
+    theoryMapping: { filter: 'dec_03', research: 'dec_01', delegate: 'dec_03' },
+    revealedContent: {
+      filter: '你用了"奥卡姆剃刀"——最简单的解法大概率是对的。三个要求满足就下单，不绕来绕去。你把"够好"放在了"完美"前面。',
+      research: '你在做"二阶思维"——想得很深很远，但可能陷入了过度分析。记住奥卡姆剃刀：绕来绕去的说法，要么是忽悠，要么是你自己还没想明白。',
+      delegate: '你借用了别人的判断来简化自己的选择——这也是一种"奥卡姆剃刀"：信任一个靠谱的人比自己做所有研究更高效。',
+    },
+    domain: 'decision',
+    tags: ['选择', '分析', '简化'],
+  },
+  {
+    id: 'onb_010',
+    situation: '你想辞职创业，做了一个很详细的计划。现在你有两个选择：A）直接辞职全情投入；B）先兼职做半年，有眉目了再辞。你更倾向哪个，为什么？',
+    options: [
+      { label: '选A，拖久了就没冲劲了', value: 'fulltime' },
+      { label: '选B，给自己留退路', value: 'parttime' },
+      { label: '看存款能撑多久再决定', value: 'calculate' },
+    ],
+    theoryMapping: { fulltime: 'wis_02', parttime: 'dec_01', calculate: 'fin_05' },
+    revealedContent: {
+      fulltime: '你选了全情投入——"机不可失"，冲劲本身也是资源。但你考虑过"二阶思维"吗？如果半年后没起色，你的存款、简历、心态会是什么状态？',
+      parttime: '你在运用"二阶思维"——不只想到A（辞职创业），还想到了别人会怎么回应（家人、市场）、回应完又会怎样。这是一种成熟的谨慎。',
+      calculate: '你选择了"现金为王"——先算清楚能扛多久再做决定。这既不是冲动也不是过度分析，是用数据让决策落地。',
+    },
+    domain: 'decision',
+    tags: ['创业', '风险', '权衡'],
+  },
 ]
 
 // Fisher-Yates shuffle

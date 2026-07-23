@@ -155,6 +155,49 @@ export interface DecisionDraft {
   category: Category
 }
 
+// ============ Scenario ============
+
+export interface ScenarioOption {
+  label: string       // e.g. "坚持去，票都买了不去太亏"
+  value: string       // e.g. "go" — key in theoryMapping
+}
+
+export interface OnboardingScenario {
+  id: string
+  situation: string                          // micro-story
+  options: ScenarioOption[]                  // 2-3 choices
+  theoryMapping: Record<string, string>      // option value → theory ID
+  revealedContent: Record<string, string>    // option value → explanation
+  domain: Domain
+  tags: string[]
+}
+
+export interface ProbeScenario {
+  id: string
+  theoryId: string
+  theoryContent: string
+  situation: string
+  options: ScenarioOption[]
+}
+
+export interface ScenarioAnswer {
+  scenarioId: string
+  selectedOption: string
+  theoryId: string
+  phase: 'onboarding' | 'probing' | 'followup'
+  timestamp: string
+}
+
+export interface DecisionProbeState {
+  phase: 'probing' | 'followup' | 'complete'
+  probeScenarios: ProbeScenario[]
+  followUpScenarios: ProbeScenario[]
+  scenarioAnswers: ScenarioAnswer[]
+  currentIndex: number
+  dilemma: string
+  category: Category
+}
+
 // ============ App State ============
 
 export interface ToastMessage {
@@ -186,6 +229,10 @@ export interface AppState {
     error: string | null
     onboardingIndex: number
     toast: ToastMessage | null
+  }
+  probing: {
+    currentState: DecisionProbeState | null
+    onboardingAnswers: ScenarioAnswer[]
   }
 }
 

@@ -5,6 +5,7 @@ import { LandingPage } from './pages/LandingPage'
 import { OnboardingPage } from './pages/OnboardingPage'
 import { DecidePage } from './pages/DecidePage'
 import { ResultPage } from './pages/ResultPage'
+import { ProbingPage } from './pages/ProbingPage'
 import { KnowledgePage } from './pages/KnowledgePage'
 import { TheoriesPage } from './pages/TheoriesPage'
 import { HistoryPage } from './pages/HistoryPage'
@@ -20,6 +21,7 @@ export function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/onboarding" element={<OnboardingPage />} />
             <Route path="/decide" element={<DecidePage />} />
+            <Route path="/probing" element={<ProbingPage />} />
             <Route path="/result/:id" element={<ResultPage />} />
             <Route path="/knowledge" element={<KnowledgePage />} />
             <Route path="/beliefs" element={<KnowledgePage />} />

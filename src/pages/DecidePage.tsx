@@ -21,7 +21,7 @@ export function DecidePage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { state, showToast } = useAppContext()
-  const { submit, isSubmitting, error } = useDecisionSubmit()
+  const { submitDilemma, isSubmitting, error } = useDecisionSubmit()
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState<Category>('daily')
 
@@ -39,9 +39,9 @@ export function DecidePage() {
 
   const handleSubmit = async () => {
     if (!description.trim()) return
-    const decisionId = await submit(description, category)
-    if (decisionId) {
-      navigate(`/result/${decisionId}`)
+    const success = await submitDilemma(description, category)
+    if (success) {
+      navigate('/probing')
     }
   }
 
@@ -117,7 +117,7 @@ export function DecidePage() {
           {isSubmitting ? (
             <>
               <LoadingSpinner size="sm" />
-              <span>分析中，大概 15-30 秒...</span>
+              <span>正在分析你的困境并生成探测场景...</span>
             </>
           ) : (
             <>

@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
-import type { DecisionResult } from '../types'
+import type { DecisionResult, ProbeScenario, Category } from '../types'
 
 // ============ Types ============
 
@@ -203,6 +203,148 @@ export async function autoCompleteTheory(params: {
       domain: 'folk',
       tags: [params.concept],
     }
+  }
+}
+
+// ============ Probe Scenario Generation ============
+
+export async function generateProbeScenarios(params: {
+  config: AIConfig
+  dilemma: string
+  category: Category
+  theoriesSummary: string
+  count?: number
+}): Promise<ProbeScenario[]> {
+  const count = params.count || 8
+  const prompt = `你是一位决策教练。用户面临一个具体的困境，你需要生成 ${count} 个微型情景来探测他的真实决策倾向。
+
+## 用户困境
+**描述**：${params.dilemma}
+
+## 可选理论库
+${params.theoriesSummary}
+
+## 你的任务
+从上述理论库中选出与用户困境最相关的 ${count} 条理论。对每条理论，编写一个：
+1. 与用户困境紧密相关的微型情景（2-3句话，真实、具体，用"你"开头）
+2. 2-3个选项，每个选项导向不同的理论倾向
+3. 选项用口语化中文，不要太长
+
+## 要点
+- 情景要像真实发生在用户身上的
+- 选项之间要有真正的张力——不是"正确"和"错误"的二分
+- 每个选项应该暗示不同的理论倾向，但不要在选项中直接说理论名字
+- 把理论内容放在 theoryContent 字段
+
+## 返回格式
+直接返回 JSON 数组（不要 markdown 代码块）：
+[
+  {
+    "theoryId": "理论ID",
+    "theoryContent": "理论原文",
+    "situation": "情景描述",
+    "options": [{"label": "选项1", "value": "opt_a"}, {"label": "选项2", "value": "opt_b"}]
+  }
+]
+返回 ${count} 道情景，确保 JSON 有效。`
+
+  let text: string
+  if (params.config.provider === 'deepseek') {
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${params.config.apiKey}` },
+      body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'user', content: prompt }], max_tokens: 4096, temperature: 0.8 }),
+    })
+    if (!response.ok) throw new Error(`DeepSeek API 错误 (${response.status})`)
+    const data = await response.json()
+    text = data.choices?.[0]?.message?.content || ''
+  } else {
+    const anthropic = new Anthropic({ apiKey: params.config.apiKey, dangerouslyAllowBrowser: true })
+    const response = await anthropic.messages.create({ model: 'claude-sonnet-4-20250514', max_tokens: 4096, temperature: 0.8, messages: [{ role: 'user', content: prompt }] })
+    text = (response.content[0] as { type: 'text'; text: string }).text
+  }
+
+  return parseScenarioArray(text, count)
+}
+
+export async function generateFollowUpScenarios(params: {
+  config: AIConfig
+  dilemma: string
+  category: Category
+  previousAnswers: string
+  count?: number
+}): Promise<ProbeScenario[]> {
+  const count = params.count || 5
+  const prompt = `你是一位决策教练。用户已经回答了一系列情景探测题，现在你需要审视他的所有回答，找出其中的矛盾、张力或未覆盖的盲区，然后生成 ${count} 道深化追问。
+
+## 用户困境
+**描述**：${params.dilemma}
+
+## 用户在第一轮探测中的回答
+${params.previousAnswers}
+
+## 你的任务
+仔细审视这些回答。寻找：
+1. **矛盾**：用户在不同情景下做了互相冲突的选择
+2. **盲区**：困境中某些重要方面还没有被探测到
+3. **深层动机**：选择背后可能有更深层的担忧
+
+针对你发现的矛盾和盲区，生成 ${count} 道新的微型情景题。每题：
+- 比第一轮更深入、更个人化
+- 选项设计要能揭示矛盾背后的真实原因
+- 用"你"开头，口语化中文
+
+## 返回格式
+直接返回 JSON 数组：
+[
+  {
+    "theoryId": "followup_1",
+    "theoryContent": "这个追问探测的是什么",
+    "situation": "深化情景描述",
+    "options": [{"label": "选项1", "value": "opt_a"}, {"label": "选项2", "value": "opt_b"}]
+  }
+]
+返回 ${count} 道追问，确保 JSON 有效。`
+
+  let text: string
+  if (params.config.provider === 'deepseek') {
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${params.config.apiKey}` },
+      body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'user', content: prompt }], max_tokens: 4096, temperature: 0.8 }),
+    })
+    if (!response.ok) throw new Error(`DeepSeek API 错误 (${response.status})`)
+    const data = await response.json()
+    text = data.choices?.[0]?.message?.content || ''
+  } else {
+    const anthropic = new Anthropic({ apiKey: params.config.apiKey, dangerouslyAllowBrowser: true })
+    const response = await anthropic.messages.create({ model: 'claude-sonnet-4-20250514', max_tokens: 4096, temperature: 0.8, messages: [{ role: 'user', content: prompt }] })
+    text = (response.content[0] as { type: 'text'; text: string }).text
+  }
+
+  return parseScenarioArray(text, count)
+}
+
+function parseScenarioArray(text: string, expectedCount: number): ProbeScenario[] {
+  // Strip markdown fences
+  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/)
+  const jsonStr = fenceMatch ? fenceMatch[1] : text
+
+  try {
+    const arr = JSON.parse(jsonStr.trim())
+    if (!Array.isArray(arr)) return []
+    return arr.slice(0, expectedCount).map((item: Record<string, unknown>, i: number) => ({
+      id: `probe_${Date.now()}_${i}`,
+      theoryId: String(item.theoryId || ''),
+      theoryContent: String(item.theoryContent || ''),
+      situation: String(item.situation || ''),
+      options: Array.isArray(item.options) ? item.options.map((o: Record<string, unknown>) => ({
+        label: String(o.label || ''),
+        value: String(o.value || ''),
+      })) : [],
+    }))
+  } catch {
+    return []
   }
 }
 

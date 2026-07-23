@@ -13,4 +13,7 @@ export const TOP_THEORIES_COUNT = 5
 export const NEUTRAL_THEORIES_COUNT = 3
 export const CONTRADICTION_THEORIES_COUNT = 2
 
+export const PROBE_SCENARIO_COUNT = 8
+export const FOLLOW_UP_COUNT = 5
+
 export const STORAGE_VERSION = 1

@@ -50,6 +50,7 @@ export function ResultPage() {
       <div className="card rounded-xl bg-white p-4">
         <p className="text-sm text-surface-500">你的困境：</p>
         <p className="mt-1 text-surface-800">{decision.description}</p>
+        <p className="mt-2 text-xs text-surface-400">🧿 本次分析基于你的情景探测回答，反映你在真实情境中的决策倾向</p>
       </div>
 
       {/* Matched theories */}

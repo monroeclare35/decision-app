@@ -3,116 +3,110 @@ import { useAppContext } from '../../hooks/useAppContext'
 import { DOMAIN_LABELS } from '../../types'
 import type { Domain } from '../../types'
 import { Link } from 'react-router-dom'
+import { ONBOARDING_SCENARIOS } from '../../data/theories'
 
 interface Evaluation {
   style: string
+  emoji: string
   styleDesc: string
-  topDomain: string
-  topDomainLabel: string
-  bottomDomain: string
-  bottomDomainLabel: string
   trait: string
 }
 
 function buildEvaluation(
-  avgRating: number,
-  variance: number,
-  domainScores: { domain: Domain; label: string; score: number }[]
+  domainCounts: Map<Domain, number>,
+  totalAnswers: number
 ): Evaluation {
-  const top = domainScores[0]
-  const bottom = domainScores[domainScores.length - 1]
-  const spread = top.score - bottom.score
-
-  // Determine decision style based on rating distribution
-  if (avgRating >= 4.2) {
+  const domains = [...domainCounts.entries()].sort((a, b) => b[1] - a[1])
+  if (domains.length === 0) {
     return {
-      style: '开放包容型',
-      styleDesc: '你对各类决策智慧都有很高的认同度，愿意从不同角度汲取养分。这让你的思维工具箱非常丰富，但也可能意味着你需要在具体情境中更果断地选择——毕竟不是所有原则都能同时适用。',
-      topDomain: top.domain,
-      topDomainLabel: top.label,
-      bottomDomain: bottom.domain,
-      bottomDomainLabel: bottom.label,
-      trait: spread < 0.5
-        ? '你的各领域评分非常均衡，说明你没有一个明显的"盲区"——这是一种罕见的认知广度。'
-        : `你相对更认同「${top.label}」领域的观点，而对「${bottom.label}」保持了一定距离。这反映了你当前阶段的关注重心。`,
+      style: '数据不足',
+      emoji: '🤔',
+      styleDesc: '你还没有完成足够的场景探测。',
+      trait: '再做几道情景题，我们就能分析你的决策风格了。',
     }
   }
 
-  if (avgRating >= 3.5) {
+  const topDomain = domains[0]
+  const domainCount = domains.length
+  const maxCount = topDomain[1]
+  const uniqueDomains = domainCount
+
+  // How concentrated are the choices in the top domain?
+  const concentration = maxCount / totalAnswers
+
+  if (uniqueDomains >= 4 && concentration <= 0.3) {
     return {
-      style: '审慎务实型',
-      styleDesc: '你对大多数原则持开放态度，但不会照单全收。你倾向于认可那些与自身经验吻合的观点，对"听起来有道理但没试过"的理论保留判断。这是一种健康的实用主义——好的理论应该是工具，不是信仰。',
-      topDomain: top.domain,
-      topDomainLabel: top.label,
-      bottomDomain: bottom.domain,
-      bottomDomainLabel: bottom.label,
-      trait: spread > 1.0
-        ? `「${top.label}」是你最认同的领域，可能因为你在这一块有过切身体会；而「${bottom.label}」相对陌生或与你的经历冲突。`
-        : '你对各领域的看法比较均匀，这意味着你有一个相对稳定的内在价值体系，不容易被单一观点带偏。',
+      style: '情境依赖型',
+      emoji: '🦎',
+      styleDesc: '你在不同领域的情境中展现了不同的决策倾向——没有一套固定的原则适用于所有场景。这说明你对情境非常敏感，会根据具体情况调整策略。这是适应力的体现，但也可能意味着你在某些领域的原则和行动之间存在张力。',
+      trait: `你的选择横跨 ${uniqueDomains} 个领域，没有一个领域占据主导。你在具体情境中做的判断比抽象原则更能说明问题。`,
     }
   }
 
-  if (variance >= 1.5) {
+  if (concentration >= 0.5) {
     return {
-      style: '独立思辨型',
-      styleDesc: '你有强烈的个人判断标准，不轻易认同任何观点。高分的理论是你真正认可的，低分的则可能和你的价值观直接冲撞。这种"爱憎分明"的特质让你不容易被人带节奏，但也可以留意一下——有些你不认同的观点，或许只是因为你还没遇到过适用的场景。',
-      topDomain: top.domain,
-      topDomainLabel: top.label,
-      bottomDomain: bottom.domain,
-      bottomDomainLabel: bottom.label,
-      trait: `你高度认同「${top.label}」领域的观点，但对「${bottom.label}」持明显的保留态度。这构成了你决策风格的核心张力。`,
+      style: '领域偏好型',
+      emoji: '🎯',
+      styleDesc: `你在「${DOMAIN_LABELS[topDomain[0]]}」领域的判断非常鲜明，你的选择在这个领域里高度一致。这说明你对这一块有清晰的价值排序——可能是因为你有丰富的亲身经历，已经磨练出了直觉。`,
+      trait: `在 10 道情景题中，你的选择 ${maxCount} 次指向了「${DOMAIN_LABELS[topDomain[0]]}」相关的理论。这个领域是你决策的"舒适区"。`,
+    }
+  }
+
+  if (concentration >= 0.35) {
+    return {
+      style: '价值观稳定型',
+      emoji: '⚓',
+      styleDesc: '你的选择在各个领域中展现出一定的一致性——你有一套相对稳定的内在价值体系，面对不同情景时，相似的原则会浮现出来。这是成熟的表现：你知道自己要什么，不容易被情境牵着走。',
+      trait: `你的核心倾向集中在「${DOMAIN_LABELS[topDomain[0]]}」领域，但不是压倒性的。你有一个主心骨，同时给其他领域留了空间。`,
     }
   }
 
   return {
-    style: '直觉感受型',
-    styleDesc: '你依靠直觉和感受来做判断，不太依赖外部框架。你更相信"具体情况具体分析"，对普适性原则保持本能的警惕。这是你自己的方式，没必要改成别人。',
-    topDomain: top.domain,
-    topDomainLabel: top.label,
-    bottomDomain: bottom.domain,
-    bottomDomainLabel: bottom.label,
-    trait: '你对不同领域的理论有清晰的偏好差异，这反映出你有一套自己摸索出来的价值排序。',
+    style: '灵活适应型',
+    emoji: '🌿',
+    styleDesc: '你在不同情景中的选择灵活多变，没有明显的领域偏好。你更可能依赖直觉和情境来做判断，而非事先设定的原则。你相信"具体情况具体分析"——这让你不容易被教条束缚。',
+    trait: '你的决策风格更接近"边走边看"——不同场景下不同的策略，这是一种灵活但难以被标签定义的方式。',
   }
 }
 
 export function FingerprintSummary() {
   const { state } = useAppContext()
-  const { userRatings, library } = state.theories
+  const { onboardingAnswers } = state.probing
 
-  const { evaluation, domainScores, ratedCount } = useMemo(() => {
-    const rated = [...library].filter((t) => userRatings[t.id] !== undefined)
-    const ratings = rated.map((t) => userRatings[t.id] ?? 3)
-    const avg = ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 3
-    const variance =
-      ratings.length > 0
-        ? ratings.reduce((sum, r) => sum + (r - avg) ** 2, 0) / ratings.length
-        : 0
+  const { evaluation, domainDistribution, totalAnswers } = useMemo(() => {
+    const answers = onboardingAnswers.filter((a) => a.phase === 'onboarding')
+    const total = answers.length
 
-    // Domain averages
-    const domainMap = new Map<Domain, { total: number; count: number }>()
-    for (const theory of library) {
-      const rating = userRatings[theory.id]
-      if (rating === undefined) continue
-      const existing = domainMap.get(theory.domain) || { total: 0, count: 0 }
-      existing.total += rating
-      existing.count += 1
-      domainMap.set(theory.domain, existing)
+    // Count how many times a theory in each domain was "followed" by user choices
+    const domainCounts = new Map<Domain, number>()
+    for (const answer of answers) {
+      // Find which scenario this answer belongs to
+      const scenario = ONBOARDING_SCENARIOS.find((s) => s.id === answer.scenarioId)
+      if (scenario) {
+        const count = domainCounts.get(scenario.domain) || 0
+        domainCounts.set(scenario.domain, count + 1)
+      }
     }
 
-    const domains: { domain: Domain; label: string; score: number }[] = []
-    for (const [domain, { total, count }] of domainMap) {
-      domains.push({
+    // Build domain distribution for display
+    const distribution: { domain: Domain; label: string; count: number; percent: number }[] = []
+    for (const [domain, count] of domainCounts) {
+      distribution.push({
         domain,
         label: DOMAIN_LABELS[domain],
-        score: Math.round((total / count) * 10) / 10,
+        count,
+        percent: total > 0 ? Math.round((count / total) * 100) : 0,
       })
     }
-    domains.sort((a, b) => b.score - a.score)
+    distribution.sort((a, b) => b.count - a.count)
 
-    const eval_ = buildEvaluation(Math.round(avg * 10) / 10, Math.round(variance * 100) / 100, domains)
+    const eval_ = buildEvaluation(domainCounts, total)
 
-    return { evaluation: eval_, domainScores: domains, ratedCount: rated.length }
-  }, [library, userRatings])
+    return { evaluation: eval_, domainDistribution: distribution, totalAnswers: total }
+  }, [onboardingAnswers])
+
+  // Only include the 5 domains covered by onboarding (finance, cognition, relationships, wisdom, decision)
+  const relevantDistribution = domainDistribution
 
   return (
     <div className="animate-fade-in space-y-8">
@@ -120,16 +114,14 @@ export function FingerprintSummary() {
         <span className="text-6xl">🧬</span>
         <h2 className="mt-4 text-2xl font-bold text-surface-800">你的决策指纹已生成</h2>
         <p className="mt-2 text-sm text-surface-500">
-          基于 {ratedCount} 条评分，我们分析了你的决策偏好
+          基于 {totalAnswers} 道情景探测，我们分析了你的决策偏好
         </p>
       </div>
 
       {/* Decision style evaluation */}
       <div className="card rounded-2xl bg-white p-6">
         <div className="mb-4 flex items-center gap-3">
-          <span className="text-2xl">
-            {evaluation.style === '开放包容型' ? '🌊' : evaluation.style === '审慎务实型' ? '⚖️' : evaluation.style === '独立思辨型' ? '🗿' : '🌿'}
-          </span>
+          <span className="text-2xl">{evaluation.emoji}</span>
           <div>
             <h3 className="text-lg font-bold text-surface-800">{evaluation.style}</h3>
             <p className="text-xs text-surface-400">你的决策风格</p>
@@ -141,26 +133,31 @@ export function FingerprintSummary() {
         </div>
       </div>
 
-      {/* Domain scores */}
-      <div className="card rounded-2xl bg-white p-6">
-        <h3 className="mb-4 text-sm font-semibold text-surface-600">各领域认同度</h3>
-        <div className="space-y-3">
-          {domainScores.map((d) => (
-            <div key={d.domain} className="flex items-center gap-3">
-              <span className="w-20 text-xs text-surface-500">{d.label}</span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-100">
-                <div
-                  className="h-full rounded-full bg-primary-400 transition-all duration-700"
-                  style={{ width: `${(d.score / 5) * 100}%` }}
-                />
+      {/* Domain distribution */}
+      {relevantDistribution.length > 0 && (
+        <div className="card rounded-2xl bg-white p-6">
+          <h3 className="mb-4 text-sm font-semibold text-surface-600">各领域倾向分布</h3>
+          <div className="space-y-3">
+            {relevantDistribution.map((d) => (
+              <div key={d.domain} className="flex items-center gap-3">
+                <span className="w-20 text-xs text-surface-500">{d.label}</span>
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-100">
+                  <div
+                    className="h-full rounded-full bg-primary-400 transition-all duration-700"
+                    style={{ width: `${Math.max(d.percent, 5)}%` }}
+                  />
+                </div>
+                <span className="w-12 text-right text-xs font-medium text-surface-700 tabular-nums">
+                  {d.count} 次
+                </span>
               </div>
-              <span className="w-8 text-right text-xs font-medium text-surface-700 tabular-nums">
-                {d.score}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-surface-400">
+            你的 10 次选择在各领域的分布。条越长说明你在该领域的倾向越明显。
+          </p>
         </div>
-      </div>
+      )}
 
       {/* CTA */}
       <div className="text-center">

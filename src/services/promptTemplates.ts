@@ -63,6 +63,132 @@ export function buildSystemPrompt(beliefs: string[]): string {
 确保 JSON 有效且完整。personalizedAnalysis 和 counterpoint 使用中文，至少 150 字。`
 }
 
+// ============ Probe Scenario Generation ============
+
+export function buildProbeScenariosPrompt(params: {
+  dilemma: string
+  category: string
+  theoriesSummary: string    // condensed list of relevant theories
+  count: number
+}): string {
+  return `你是一位决策教练。用户面临一个具体的困境，你需要生成 ${params.count} 个微型情景来探测他的真实决策倾向。
+
+## 用户困境
+**类别**：${params.category}
+**描述**：${params.dilemma}
+
+## 可选理论库
+${params.theoriesSummary}
+
+## 你的任务
+从上述理论库中选出与用户困境最相关的 ${params.count} 条理论。对每条理论，编写一个：
+1. 与用户困境紧密相关的微型情景（2-3句话，真实、具体）
+2. 2-3个选项，每个选项导向不同的理论倾向
+3. 选项用口语化中文，不要太长
+
+## 要点
+- 情景要像真实发生在用户身上的，用"你"开头
+- 选项之间要有真正的张力——不是"正确"和"错误"的二分
+- 每个选项应该暗示不同的理论倾向，但不要在选项中直接说理论名字
+- 把理论内容放在 theoryContent 字段，作为后续揭示的依据
+
+## 返回格式
+直接返回 JSON 数组（不要 markdown 代码块）：
+[
+  {
+    "theoryId": "理论ID（从理论库中选）",
+    "theoryContent": "理论原文",
+    "situation": "情景描述（2-3句，用你开头）",
+    "options": [
+      {"label": "选项1", "value": "opt_a"},
+      {"label": "选项2", "value": "opt_b"}
+    ]
+  }
+]
+
+返回 ${params.count} 道情景，确保 JSON 有效。`
+}
+
+export function buildFollowUpScenariosPrompt(params: {
+  dilemma: string
+  category: string
+  previousAnswers: string   // summary of all Phase B answers
+  count: number
+}): string {
+  return `你是一位决策教练。用户已经回答了一系列情景探测题，现在你需要审视他的所有回答，找出其中的矛盾、张力或未覆盖的盲区，然后生成 ${params.count} 道深化追问。
+
+## 用户困境
+**类别**：${params.category}
+**描述**：${params.dilemma}
+
+## 用户在第一轮探测中的回答
+${params.previousAnswers}
+
+## 你的任务
+仔细审视这些回答。寻找：
+1. **矛盾**：用户在不同情景下做了互相冲突的选择（比如某些情景选冒险、另一些选保守）
+2. **盲区**：用户困境中某些重要方面还没有被探测到
+3. **深层动机**：用户的选择背后可能有更深层的担忧或需求没有被暴露
+
+针对你发现的矛盾和盲区，生成 ${params.count} 道新的微型情景题。每题：
+- 比第一轮更深入、更个人化
+- 选项设计要能揭示矛盾背后的真实原因
+- 仍然用"你"开头，口语化中文
+
+## 返回格式
+直接返回 JSON 数组（不要 markdown 代码块）：
+[
+  {
+    "theoryId": "followup_1",
+    "theoryContent": "这个追问探测的是什么（简短说明）",
+    "situation": "深化情景描述",
+    "options": [
+      {"label": "选项1", "value": "opt_a"},
+      {"label": "选项2", "value": "opt_b"}
+    ]
+  }
+]
+
+返回 ${params.count} 道追问，确保 JSON 有效。`
+}
+
+export function buildAdvicePromptWithScenarios(params: {
+  decisionText: string
+  category: string
+  theoriesSection: string
+  beliefs: string[]
+  knowledgeSection?: string
+  scenarioAnswersSection: string
+}): string {
+  return `## 决策困境
+**类别**：${params.category}
+**描述**：${params.decisionText}
+
+${params.theoriesSection}
+
+${params.beliefs.length > 0 ? `## 用户核心信念\n${params.beliefs.map((b) => `- ${b}`).join('\n')}` : '## 用户核心信念\n（用户暂未设置核心信念）'}
+
+${params.knowledgeSection || ''}
+
+## 用户的情景探测回答
+以下是在针对此困境的探测中，用户对一系列微型情景所做的选择。这些选择揭示了用户在真实情境中的行为倾向——可能和他们自己认为的"原则"不同。请把这些作为重要的决策分析依据。
+
+${params.scenarioAnswersSection}
+
+## 任务
+请仔细分析这个决策困境。综合考虑：
+1. 用户的理论偏好（评分）
+2. 用户的核心信念
+3. **用户的情景探测回答（最重要）——这些是用户在实际情境中的真实倾向，比抽象评分更能说明问题**
+
+在个性化分析中，明确指出：
+- 用户在探测中的选择揭示了哪些倾向
+- 这些倾向中有没有矛盾的地方（比如同一领域内选了不同的方向）
+- 这些矛盾对当前的困境意味着什么
+
+给出个性化的决策建议。${params.knowledgeSection ? '如果用户的知识库收藏中有与当前困境相关的，在matchedKnowledge中引用它们。' : ''}请严格按照 JSON 格式返回。`
+}
+
 export function buildAdvicePrompt(params: {
   decisionText: string
   category: Category

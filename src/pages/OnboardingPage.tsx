@@ -2,30 +2,29 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnboarding } from '../hooks/useOnboarding'
 import { ProgressBar } from '../components/onboarding/ProgressBar'
-import { TheoryCard } from '../components/onboarding/TheoryCard'
+import { ScenarioCard } from '../components/onboarding/ScenarioCard'
 import { FingerprintSummary } from '../components/onboarding/FingerprintSummary'
 import { useAppContext } from '../hooks/useAppContext'
 import { ONBOARDING_TOTAL } from '../constants/config'
+import { ONBOARDING_SCENARIOS } from '../data/theories'
 import { cn } from '../utils/cn'
 
 export function OnboardingPage() {
   const navigate = useNavigate()
   const {
-    currentTheory,
-    ratedCount,
+    currentScenario,
+    answeredCount,
     isComplete,
     onboardingIndex,
     goToIndex,
     next,
     prev,
-    rateOnly,
-    rateAndNext,
+    answerAndNext,
     skipAndNext,
     complete,
   } = useOnboarding()
   const { state } = useAppContext()
-  const { userRatings } = state.theories
-  const { library: theories } = state.theories
+  const { onboardingAnswers } = state.probing
 
   const [showSummary, setShowSummary] = useState(false)
   const [showProgressOverview, setShowProgressOverview] = useState(false)
@@ -59,7 +58,7 @@ export function OnboardingPage() {
     )
   }
 
-  if (!currentTheory) {
+  if (!currentScenario) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
         <p className="text-surface-500">理论数据加载中...</p>
@@ -73,12 +72,13 @@ export function OnboardingPage() {
     )
   }
 
-  // Compute rated/unrated counts per theory for overview
-  const ratedList = theories.map((t, i) => ({
+  // Compute answered/unanswered scenarios for overview
+  const answeredIds = new Set(onboardingAnswers.filter((a) => a.phase === 'onboarding').map((a) => a.scenarioId))
+  const ratedList = ONBOARDING_SCENARIOS.map((s, i) => ({
     index: i,
-    id: t.id,
-    content: t.content.slice(0, 30) + '...',
-    rating: userRatings[t.id] ?? null,
+    id: s.id,
+    content: s.situation.slice(0, 30) + '...',
+    rating: answeredIds.has(s.id) ? 5 : null, // simplified: answered or not
   }))
 
   const unratedCount = ratedList.filter((r) => r.rating === null).length
@@ -107,7 +107,7 @@ export function OnboardingPage() {
             {showProgressOverview ? '收起总览' : '查看进度'}
           </button>
         </div>
-        <ProgressBar ratedCount={ratedCount} />
+        <ProgressBar ratedCount={answeredCount} />
       </div>
 
       {/* Progress overview (expandable) */}
@@ -116,7 +116,7 @@ export function OnboardingPage() {
           <div className="mb-2 flex items-center justify-between text-xs text-surface-500">
             <span>答题进度总览</span>
             <span>
-              已评 {ratedCount} · 未评 {unratedCount}
+              已答 {answeredCount} · 未答 {unratedCount}
             </span>
           </div>
           <div className="grid grid-cols-10 gap-1">
@@ -161,17 +161,17 @@ export function OnboardingPage() {
         </div>
       )}
 
-      {/* Theory Card */}
+      {/* Scenario Card */}
       <div className="flex-1">
-        <TheoryCard
-          key={currentTheory.id}
-          theory={currentTheory}
-          currentRating={userRatings[currentTheory.id]}
-          onRate={(theoryId, score) => {
-            rateAndNext(theoryId, score)
-            // Don't auto-advance past the last theory
+        <ScenarioCard
+          key={currentScenario.id}
+          situation={currentScenario.situation}
+          options={currentScenario.options}
+          domain={currentScenario.domain}
+          tags={currentScenario.tags}
+          onSelect={(optionValue) => {
+            answerAndNext(currentScenario.id, optionValue)
           }}
-          onSkip={skipAndNext}
         />
       </div>
 
@@ -193,17 +193,16 @@ export function OnboardingPage() {
           下一题 →
         </button>
 
-        {ratedCount >= 5 && !isComplete && (
+        {answeredCount >= 5 && !isComplete && (
           <button
             onClick={() => {
-              if (window.confirm(`你已评价了 ${ratedCount} 条理论（共 ${ONBOARDING_TOTAL} 条），未评的将记为中立。确定提交吗？`)) {
-                // Mark remaining as neutral — rate only, don't auto-advance
-                theories.forEach((t) => {
-                  if (userRatings[t.id] === undefined) {
-                    rateOnly(t.id, 3)
+              if (window.confirm(`你已答了 ${answeredCount} 道情景题（共 ${ONBOARDING_TOTAL} 道），未答的将记为跳过。确定提交吗？`)) {
+                // Mark remaining as skipped
+                ONBOARDING_SCENARIOS.forEach((s) => {
+                  if (!answeredIds.has(s.id)) {
+                    skipAndNext(s.id)
                   }
                 })
-                // Jump to end
                 goToIndex(ONBOARDING_TOTAL)
                 setShowSummary(true)
               }

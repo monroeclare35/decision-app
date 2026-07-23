@@ -6,4 +6,6 @@ export const STORAGE_KEYS = {
   ONBOARDING_INDEX: 'decision_app_onboarding_index',
   API_KEY: 'decision_app_api_key',
   VERSION: 'decision_app_version',
+  PROBE_STATE: 'decision_app_probe_state',
+  ONBOARDING_ANSWERS: 'decision_app_onboarding_answers',
 } as const

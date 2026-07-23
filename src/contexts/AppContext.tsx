@@ -1,11 +1,11 @@
 import React, { createContext, useReducer, useEffect, useCallback } from 'react'
 import { appReducer, initialState } from './appReducer'
 import type { AppAction } from './appReducer'
-import type { AppState, UserProfile, Theory, Decision, DecisionResult, DecisionDraft, ToastMessage, AIProvider, KnowledgeItem } from '../types'
+import type { AppState, UserProfile, Theory, Decision, DecisionResult, DecisionDraft, ToastMessage, AIProvider, KnowledgeItem, ScenarioAnswer, DecisionProbeState } from '../types'
 import * as storage from '../services/storage'
 import { STORAGE_KEYS } from '../constants/storage'
 import { STORAGE_VERSION } from '../constants/config'
-import { PRESET_THEORIES, ONBOARDING_THEORIES, shuffleTheories } from '../data/theories'
+import { PRESET_THEORIES, ONBOARDING_SCENARIOS } from '../data/theories'
 
 interface AppContextValue {
   state: AppState
@@ -21,6 +21,10 @@ interface AppContextValue {
   setApiKey: (key: string) => void
   setProvider: (provider: AIProvider) => void
   showToast: (text: string, type?: ToastMessage['type']) => void
+  recordScenarioAnswer: (answer: ScenarioAnswer) => void
+  setProbeState: (state: DecisionProbeState | null) => void
+  advanceProbeIndex: (index: number) => void
+  clearProbeState: () => void
 }
 
 export const AppContext = createContext<AppContextValue | null>(null)
@@ -71,6 +75,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     // Load knowledge
     const knowledge = storage.get<KnowledgeItem[]>('decision_app_knowledge', [])
     dispatch({ type: 'LOAD_KNOWLEDGE', payload: knowledge })
+
+    // Load probe state
+    const probeState = storage.get<DecisionProbeState | null>(STORAGE_KEYS.PROBE_STATE, null)
+    if (probeState) {
+      dispatch({ type: 'SET_PROBE_STATE', payload: probeState })
+    }
+
+    // Load onboarding answers
+    const onboardingAnswers = storage.get<ScenarioAnswer[]>(STORAGE_KEYS.ONBOARDING_ANSWERS, [])
+    dispatch({ type: 'LOAD_ONBOARDING_ANSWERS', payload: onboardingAnswers })
   }, [])
 
   // --- Persist on change ---
@@ -107,6 +121,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     storage.set('decision_app_provider', state.settings.provider)
   }, [state.settings.provider])
+
+  useEffect(() => {
+    if (state.probing.currentState) {
+      storage.set(STORAGE_KEYS.PROBE_STATE, state.probing.currentState)
+    } else {
+      storage.remove(STORAGE_KEYS.PROBE_STATE)
+    }
+  }, [state.probing.currentState])
+
+  useEffect(() => {
+    if (state.probing.onboardingAnswers.length > 0) {
+      storage.set(STORAGE_KEYS.ONBOARDING_ANSWERS, state.probing.onboardingAnswers)
+    }
+  }, [state.probing.onboardingAnswers])
 
   // --- Convenience methods ---
   const rateTheory = useCallback(
@@ -171,6 +199,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setTimeout(() => dispatch({ type: 'DISMISS_TOAST' }), 3000)
   }, [])
 
+  const recordScenarioAnswer = useCallback((answer: ScenarioAnswer) => {
+    dispatch({ type: 'RECORD_SCENARIO_ANSWER', payload: answer })
+  }, [])
+
+  const setProbeState = useCallback((probeState: DecisionProbeState | null) => {
+    dispatch({ type: 'SET_PROBE_STATE', payload: probeState })
+  }, [])
+
+  const advanceProbeIndex = useCallback((index: number) => {
+    dispatch({ type: 'ADVANCE_PROBE_INDEX', payload: index })
+  }, [])
+
+  const clearProbeState = useCallback(() => {
+    dispatch({ type: 'CLEAR_PROBE_STATE' })
+  }, [])
+
   const value: AppContextValue = {
     state,
     dispatch,
@@ -184,6 +228,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setApiKey,
     setProvider,
     showToast,
+    recordScenarioAnswer,
+    setProbeState,
+    advanceProbeIndex,
+    clearProbeState,
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
