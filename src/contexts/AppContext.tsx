@@ -1,7 +1,7 @@
 import React, { createContext, useReducer, useEffect, useCallback } from 'react'
 import { appReducer, initialState } from './appReducer'
 import type { AppAction } from './appReducer'
-import type { AppState, UserProfile, Theory, Decision, DecisionResult, DecisionDraft, ToastMessage, AIProvider, KnowledgeItem, ScenarioAnswer, DecisionProbeState } from '../types'
+import type { AppState, UserProfile, Theory, Decision, DecisionResult, DecisionDraft, ToastMessage, AIProvider, KnowledgeItem, ScenarioAnswer, DecisionProbeState, ChatMessage } from '../types'
 import * as storage from '../services/storage'
 import { STORAGE_KEYS } from '../constants/storage'
 import { STORAGE_VERSION } from '../constants/config'
@@ -25,6 +25,9 @@ interface AppContextValue {
   setProbeState: (state: DecisionProbeState | null) => void
   advanceProbeIndex: (index: number) => void
   clearProbeState: () => void
+  addChatMessage: (msg: ChatMessage) => void
+  setStreaming: (v: boolean) => void
+  clearChat: () => void
 }
 
 export const AppContext = createContext<AppContextValue | null>(null)
@@ -85,6 +88,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     // Load onboarding answers
     const onboardingAnswers = storage.get<ScenarioAnswer[]>(STORAGE_KEYS.ONBOARDING_ANSWERS, [])
     dispatch({ type: 'LOAD_ONBOARDING_ANSWERS', payload: onboardingAnswers })
+
+    // Load chat history
+    const chatMessages = storage.get<ChatMessage[]>('decision_app_chat', [])
+    dispatch({ type: 'LOAD_CHAT_HISTORY', payload: chatMessages })
   }, [])
 
   // --- Persist on change ---
@@ -135,6 +142,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       storage.set(STORAGE_KEYS.ONBOARDING_ANSWERS, state.probing.onboardingAnswers)
     }
   }, [state.probing.onboardingAnswers])
+
+  useEffect(() => {
+    if (state.chat.messages.length > 0) {
+      storage.set('decision_app_chat', state.chat.messages)
+    }
+  }, [state.chat.messages])
 
   // --- Convenience methods ---
   const rateTheory = useCallback(
@@ -215,6 +228,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'CLEAR_PROBE_STATE' })
   }, [])
 
+  const addChatMessage = useCallback((msg: ChatMessage) => {
+    dispatch({ type: 'ADD_CHAT_MESSAGE', payload: msg })
+  }, [])
+
+  const setStreaming = useCallback((v: boolean) => {
+    dispatch({ type: 'SET_STREAMING', payload: v })
+  }, [])
+
+  const clearChat = useCallback(() => {
+    dispatch({ type: 'CLEAR_CHAT' })
+  }, [])
+
   const value: AppContextValue = {
     state,
     dispatch,
@@ -232,6 +257,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setProbeState,
     advanceProbeIndex,
     clearProbeState,
+    addChatMessage,
+    setStreaming,
+    clearChat,
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

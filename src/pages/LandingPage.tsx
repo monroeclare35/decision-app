@@ -107,12 +107,20 @@ export function LandingPage() {
             {hasStarted ? '继续测评' : '开始建立决策指纹'}
           </Link>
         ) : (
-          <Link
-            to="/decide"
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-surface-800 px-8 py-4 text-base font-medium text-white transition-all hover:bg-surface-700 active:scale-95"
-          >
-            去做一个决定
-          </Link>
+          <div className="flex flex-col gap-3">
+            <Link
+              to="/chat"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-surface-800 px-8 py-4 text-base font-medium text-white transition-all hover:bg-surface-700 active:scale-95"
+            >
+              🐱 跟咪儿聊聊
+            </Link>
+            <Link
+              to="/decide"
+              className="text-sm text-surface-400 underline-offset-2 hover:text-surface-600 hover:underline"
+            >
+              深度分析（走完整流程）
+            </Link>
+          </div>
         )}
         {hasStarted && !completed && (
           <Link

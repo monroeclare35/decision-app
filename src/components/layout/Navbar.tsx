@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { cn } from '../../utils/cn'
 
 const NAV_ITEMS = [
+  { to: '/chat', label: '聊天', icon: '💬' },
   { to: '/decide', label: '决策', icon: '🎯' },
   { to: '/knowledge', label: '知识库', icon: '📖' },
   { to: '/theories', label: '理论', icon: '📚' },

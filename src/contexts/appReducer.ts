@@ -1,4 +1,4 @@
-import type { AppState, Theory, Decision, DecisionResult, DecisionDraft, UserProfile, ToastMessage, KnowledgeItem, ScenarioAnswer, DecisionProbeState } from '../types'
+import type { AppState, Theory, Decision, DecisionResult, DecisionDraft, UserProfile, ToastMessage, KnowledgeItem, ScenarioAnswer, DecisionProbeState, ChatMessage } from '../types'
 
 export type AppAction =
   // User
@@ -31,6 +31,11 @@ export type AppAction =
   | { type: 'ADVANCE_PROBE_INDEX'; payload: number }
   | { type: 'CLEAR_PROBE_STATE' }
   | { type: 'LOAD_ONBOARDING_ANSWERS'; payload: ScenarioAnswer[] }
+  // Chat
+  | { type: 'ADD_CHAT_MESSAGE'; payload: ChatMessage }
+  | { type: 'SET_STREAMING'; payload: boolean }
+  | { type: 'LOAD_CHAT_HISTORY'; payload: ChatMessage[] }
+  | { type: 'CLEAR_CHAT' }
   // UI
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
@@ -65,6 +70,10 @@ export const initialState: AppState = {
   probing: {
     currentState: null,
     onboardingAnswers: [],
+  },
+  chat: {
+    messages: [],
+    isStreaming: false,
   },
 }
 
@@ -291,6 +300,34 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         probing: { ...state.probing, onboardingAnswers: action.payload },
+      }
+
+    // --- Chat ---
+    case 'ADD_CHAT_MESSAGE':
+      return {
+        ...state,
+        chat: {
+          ...state.chat,
+          messages: [...state.chat.messages, action.payload],
+        },
+      }
+
+    case 'SET_STREAMING':
+      return {
+        ...state,
+        chat: { ...state.chat, isStreaming: action.payload },
+      }
+
+    case 'LOAD_CHAT_HISTORY':
+      return {
+        ...state,
+        chat: { ...state.chat, messages: action.payload },
+      }
+
+    case 'CLEAR_CHAT':
+      return {
+        ...state,
+        chat: { ...state.chat, messages: [] },
       }
 
     // --- UI ---

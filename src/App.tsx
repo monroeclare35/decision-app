@@ -4,6 +4,7 @@ import { Layout } from './components/layout/Layout'
 import { LandingPage } from './pages/LandingPage'
 import { OnboardingPage } from './pages/OnboardingPage'
 import { DecidePage } from './pages/DecidePage'
+import { ChatPage } from './pages/ChatPage'
 import { ResultPage } from './pages/ResultPage'
 import { ProbingPage } from './pages/ProbingPage'
 import { KnowledgePage } from './pages/KnowledgePage'
@@ -21,6 +22,7 @@ export function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/onboarding" element={<OnboardingPage />} />
             <Route path="/decide" element={<DecidePage />} />
+            <Route path="/chat" element={<ChatPage />} />
             <Route path="/probing" element={<ProbingPage />} />
             <Route path="/result/:id" element={<ResultPage />} />
             <Route path="/knowledge" element={<KnowledgePage />} />

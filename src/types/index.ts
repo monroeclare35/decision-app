@@ -199,6 +199,15 @@ export interface DecisionProbeState {
   category: Category
 }
 
+// ============ Chat ============
+
+export interface ChatMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string       // may contain <scenario> / <analysis> markup
+  createdAt: string
+}
+
 // ============ App State ============
 
 export interface ToastMessage {
@@ -234,6 +243,10 @@ export interface AppState {
   probing: {
     currentState: DecisionProbeState | null
     onboardingAnswers: ScenarioAnswer[]
+  }
+  chat: {
+    messages: ChatMessage[]
+    isStreaming: boolean
   }
 }
 
